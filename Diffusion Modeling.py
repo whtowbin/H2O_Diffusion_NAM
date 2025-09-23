@@ -159,7 +159,8 @@ def time_steper(v_in, Diff_Matrix, timesteps, boundaries=None, return_all = Fals
 def sum_residuals_squares(data_x,data_y, model_x, model_y_alltimesteps):
     model_y_interp = interp1d(model_x,model_y_alltimesteps, axis=1)(data_x)
     sum_res_sq = np.sum((data_y - model_y_interp)**2, axis=1)
-    return sum_res_sq, model_y_interp
+    n_datapoints = len(data_x)
+    return sum_res_sq, model_y_interp, n_datapoints
 #%%
 
 # def decomp_path(Solex, dP_dt, dt):
@@ -450,6 +451,7 @@ plt.savefig("500um CPX 37 hr Equilibration ")
 
 font = {"family": "Helvetica", "weight": "bold", "size": 20}
 
+
 plt.rc("font", **font)
 N_points = 200
 profile_length = 1800  # Microns
@@ -458,7 +460,7 @@ dX = profile_length / (N_points - 1)  # Microns
 Distances = np.round([0 + dX * Y - profile_length / 2 for Y in range(N_points)],2)
 
 boundary = 0  # 0 #ppm
-initial_C = 10#2.35   # ppm
+initial_C = 10#2.35#2.35   # ppm
 v = np.asmatrix(np.ones(N_points) * initial_C).T
 v[0], v[-1] = boundary, boundary
 v_initial = v
@@ -468,7 +470,7 @@ D = DH2O_Ol(1100) # 1100C
 
 Minutes = (250**2 / D) / 60
 
-time_min = 500
+time_min = 400
 time_s = time_min * 60
 
 dt = 0.1
@@ -480,8 +482,8 @@ v_loop1 = time_steper(v_initial, B, 0, )
 v_loop_array = time_steper(v_initial, B, n_timesteps,return_all=True )
 
 
-ol3_2_x = np.array([1800,937,516,390,270,212,34,0])-900 
-ol3_2_c = np.array([0,2.35,2.27,1.84,0.45,0.17,0.62,1.98]) # edge should be cut out for fits. 
+ol3_2_x = np.array([937,516,390,270,212,34,0])-900 
+ol3_2_c = np.array([2.35,2.27,1.84,0.45,0.17,0.62,1.98]) # edge should be cut out for fits. 
 
 
 
@@ -491,23 +493,26 @@ ol3_2_c = np.array([0,2.35,2.27,1.84,0.45,0.17,0.62,1.98]) # edge should be cut 
 
 
 # %%
-res_sq, mod_y = sum_residuals_squares(ol3_2_x[1:],ol3_2_c[1:],Distances,v_loop_array) 
+res_sq, mod_y, n_datapoints = sum_residuals_squares(ol3_2_x[0:-2],ol3_2_c[0:-2],Distances,v_loop_array) 
 plt.plot(res_sq)
 bestfit_idx = res_sq.argmin()
 best_fit_time_min = bestfit_idx * dt /60
 
 # %%
-fix, ax = plt.subplots(figsize=(12, 8))
-ax.plot(Distances, v_initial, linewidth=3, label="Initial")
+fix, ax = plt.subplots(figsize=(8, 8))
+ax.plot(Distances, v_initial, linewidth=3, label="Initial", linestyle='dashed',)
 ax.plot(Distances, v_loop_array[bestfit_idx], linewidth=3, label=f"Bestfit: {best_fit_time_min:.1f} Minutes")
+ax.plot(Distances, v_loop_array[int(10*60/dt)], linewidth=3, label=f"10 Minutes")
 ax.plot(Distances, v_loop_array[-1], linewidth=3, label=f"{time_min} Minutes")
 
 ax.legend()
-ax.set_ylabel("% Concentration (ppm)")
+ax.set_ylabel("Concentration (ppm)")
 ax.set_xlabel("Distance (µm)")
+ax.set_ylim(0,10.2)
 
 ax.plot(ol3_2_x,ol3_2_c,linestyle = "none", marker = "o")
-
+plt.title('Sample: 3Ol2 \n' fr'olivine diffusivity Ferriss 2018 1100 ˚C: {D*1e-12:.1e} $\frac{{µm^{2}}}{{S}}$' f'\n  Sum of Residuals Squared / n: {res_sq.min()/ n_datapoints:.3}')
+# %%
 
 # %%
 
@@ -518,7 +523,7 @@ dX = profile_length / (N_points - 1)  # Microns
 Distances = np.round([0 + dX * Y - profile_length / 2 for Y in range(N_points)],2)
 
 boundary = 0  # 0 #ppm
-initial_C = 1.030#2.35   # ppm
+initial_C = 1.03 #1.03 #2.35   # ppm
 v = np.asmatrix(np.ones(N_points) * initial_C).T
 v[0], v[-1] = boundary, boundary
 v_initial = v
@@ -528,7 +533,7 @@ D = DH2O_Ol(1100) # 1100C
 
 Minutes = (250**2 / D) / 60
 
-time_min = 500
+time_min = 400
 time_s = time_min * 60
 
 dt = 0.1
@@ -551,20 +556,23 @@ ol12_3_c = np.array([0.45,0.34,0.38,1.03,0.73,0.92,0.75]) # edge should be cut o
 
 
 # %%
-res_sq, mod_y = sum_residuals_squares(ol12_3_x[1:],ol12_3_c[1:],Distances,v_loop_array) 
+res_sq, mod_y, n_datapoints = sum_residuals_squares(ol12_3_x,ol12_3_c,Distances,v_loop_array) 
 plt.plot(res_sq)
 bestfit_idx = res_sq.argmin()
 best_fit_time_min = bestfit_idx * dt /60
 
 # %%
-fix, ax = plt.subplots(figsize=(12, 8))
-ax.plot(Distances, v_initial, linewidth=3, label="Initial")
+fix, ax = plt.subplots(figsize=(8, 8))
+ax.plot(Distances, v_initial, linewidth=3, linestyle='dashed', label="Initial")
 ax.plot(Distances, v_loop_array[bestfit_idx], linewidth=3, label=f"Bestfit: {best_fit_time_min:.1f} Minutes")
+ax.plot(Distances, v_loop_array[int(10*60/dt)], linewidth=3, label=f"10 Minutes")
 ax.plot(Distances, v_loop_array[-1], linewidth=3, label=f"{time_min} Minutes")
 
 ax.legend()
-ax.set_ylabel("% Concentration (ppm)")
+ax.set_ylabel("Concentration (ppm)")
 ax.set_xlabel("Distance (µm)")
+ax.set_ylim(0,10.2)
 
 ax.plot(ol12_3_x,ol12_3_c,linestyle = "none", marker = "o")
+plt.title('Sample: 12Ol3 \n' fr'olivine diffusivity Ferriss 2018 1100 ˚C: {D*1e-12:.1e} $\frac{{m^{2}}}{{S}}$' f'\n  Sum of Residuals Squared / n: {res_sq.min()/ n_datapoints:.3}')
 # %%
