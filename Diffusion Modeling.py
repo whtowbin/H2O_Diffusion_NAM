@@ -206,7 +206,7 @@ dX = profile_length / (N_points - 1)  # Microns
 Distances = np.round([0 + dX * Y - profile_length / 2 for Y in range(N_points)],2)
 
 boundary = 0  # 0 #ppm
-initial_C = 10#2.35#2.35   # ppm
+initial_C = 2.35#2.35   # ppm
 v = np.asmatrix(np.ones(N_points) * initial_C).T
 v[0], v[-1] = boundary, boundary
 v_initial = v
@@ -252,7 +252,7 @@ ax.plot(Distances, v_loop_array[-1], linewidth=3, label=f"{time_min} Minutes")
 ax.legend()
 ax.set_ylabel("Concentration (ppm)")
 ax.set_xlabel("Distance (µm)")
-ax.set_ylim(0,10.2)
+# ax.set_ylim(0,10.2)
 
 ax.plot(ol3_2_x,ol3_2_c,linestyle = "none", marker = "o")
 plt.title('Sample: 3Ol2 \n' fr'olivine diffusivity Ferriss 2018 1100 ˚C: {D*1e-12:.1e} $\frac{{µm^{2}}}{{S}}$' f'\n  Sum of Residuals Squared / n: {res_sq.min()/ n_datapoints:.3}')
@@ -291,9 +291,6 @@ ol12_3_x = np.array([0,93,211,311,411,511,611]) - 650
 ol12_3_c = np.array([0.45,0.34,0.38,1.03,0.73,0.92,0.75]) # edge should be cut out for fits. 
 
 
-
-
-# %%
 
 
 
