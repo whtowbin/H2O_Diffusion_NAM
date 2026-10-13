@@ -8,3 +8,8 @@ wheels/
 
 # Virtual environments
 .venv
+
+# macOS, editor and Office temp files
+.DS_Store
+.ipynb_checkpoints/
+~$*
