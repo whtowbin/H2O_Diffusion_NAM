@@ -305,6 +305,18 @@ def fminsearch(
 # --------------------------------------------------------------------------------------
 # Case, row replay and Monte Carlo driver (master_script_test.m)
 # --------------------------------------------------------------------------------------
+@dataclass(frozen=True)
+class DiffLaw:
+    """D = A * exp(-Ea / (R * T_K)) * mult, in m^2/s, with the MATLAB operator order."""
+
+    A: float
+    Ea: float
+    mult: float = 1.0
+
+    def log10_at(self, T_K: float) -> float:
+        return math.log10(self.A * math.exp(-self.Ea / (8.314 * T_K)) * self.mult)
+
+
 @dataclass
 class Case:
     dist: np.ndarray
@@ -325,14 +337,16 @@ class Case:
     tolx: float = 1.0
     tolfun: float = 1.0
     numx: int = 41
+    # DHhi is evaluated at T_K + 20 and DHlo at T_K - 20 (master_script_test*.m), each with its own law
+    dh_hi: DiffLaw = DiffLaw(10**-5.4, 130000.0)
+    dh_lo: DiffLaw = DiffLaw(10**-5.4, 130000.0)
+    # a case whose olivineMC.m hard-codes ``Pf = 0`` overrides the global Pf drawn by the master script
+    Pf_fixed: float | None = None
 
     def logDH_bounds(self) -> tuple[float, float]:
         """(logDHlo, logDHhi) for T_K -/+ 20 K."""
         T_K = self.T_C + 273
-        out = []
-        for T in (T_K - 20, T_K + 20):
-            out.append(math.log10(10**-5.4 * math.exp(-130000 / (8.314 * T))))
-        return out[0], out[1]
+        return self.dh_lo.log10_at(T_K - 20), self.dh_hi.log10_at(T_K + 20)
 
 
 def _read_numeric(path: Path) -> np.ndarray:
@@ -354,6 +368,9 @@ def load_saved_results(path: str | Path) -> np.ndarray:
 
 
 def _misfit_for(case: Case, h2o, P0, Pf, logDH, Kd) -> Callable[[np.ndarray], float]:
+    if case.Pf_fixed is not None:
+        Pf = case.Pf_fixed
+
     def f(x: np.ndarray) -> float:
         return misfit(
             x, h2o=h2o, dist=case.dist, P0=P0, Pf=Pf, radius=case.radius, logDH=logDH, Kd=Kd,
