@@ -58,7 +58,8 @@ operation is the same up to the rounding of `r` and `ΔP`. ∎
    (fminsearch's absolute `TolX` makes the 2023 optima approximate at the 1–3 % level; the posterior below has no such error.)
 3. `L` is **not** a pure rescaling for real data. The measured distances `d_i` are fixed in µm, so changing `L` moves the
    sampling points `ξ_i = d_i/L` as well as the `τ ↔ v_P` conversion. (Only if the profile were measured in fractions of the
-   half-width would `v_P ∝ 1/L²` hold.) `L` must therefore be held fixed or made a dimension of the fit (section 4.4).
+   half-width would `v_P ∝ 1/L²` hold.) `L` must therefore be a dimension of the fit (section 4.4) — which costs no extra
+   diffusion runs, because the table holds the whole profile in `ξ`.
    *Corrected 2026-10-17: an earlier version said `L` could be propagated after the fit; the build review showed that is wrong.*
 4. Temperature only acts through `D(T)` (with a fixed path). It can be propagated after the fit **when the prior on `log v_P` is
    flat over the region the data allow**; otherwise it must be integrated together with `v_P` (section 4.3).
@@ -128,8 +129,17 @@ off when reused — new priors, σ, diffusion laws, temperatures, or more profil
 ### 4.4 Decompression rate, ascent speed, and the half-width
 `v_P` comes directly from the posterior in 4.3. Ascent speed `u = v_P / (ρ g)` with `v_P` in Pa/s, `ρ` the density of the
 overlying column (default 2800 ± 100 kg/m³, a documented input) and `g = 9.81 m/s²`.
-`L` is fixed by default. To include its uncertainty, add `L` as a grid dimension (a separate table per `L` value; section 2,
-consequence 3 explains why it cannot be propagated afterwards).
+`L` is a posterior dimension, not a post-hoc factor (section 2, consequence 3), and it needs no extra diffusion runs: the table
+stores the whole dimensionless profile `G(ξ; τ, P0, Pf)`, so a value of `L` only changes where the data are read from it —
+`ξ_i = |d_i|/L` for centre-referenced distances, `ξ_i = 1 − d_rim,i/L` for rim-referenced ones — and the conversion
+`v_P = D (P0 − Pf)/(τ L²)`. Values of `L` that put a measured point outside the crystal (`ξ_i > 1`) have zero likelihood. Prior: the
+2023 value fixed (default, reproduces 2023), or a measured half-width with an allowance for off-centre sectioning and 3-D shape.
+
+*Measured 2026-10-17 (single fminsearch fits, measured distances held fixed): the fitted rate responds to `L` × 0.8 / × 1.25 by
+× 1.87 / × 0.52 (olivine, centre-referenced) and × 1.30 / × 0.86 (cpx exterior, rim-referenced), vs × 1.56 / × 0.64 for a pure `L²`
+rule; for opx WHT1 exterior, `L` × 0.8 puts the outermost point outside the crystal. The response lies between `L⁰` (diffusion front
+far from the centre: only √(Dt) in µm is recorded) and `L²` (core depleted: `Dt/L²` is recorded), and the misfit itself changes with
+`L` (opx WHT1 interior: 736 at `L`, 270 at 1.25 `L`), so the data carry information on `L`.*
 Report: median and 68/95 % intervals of `log10 v_P`, `v_P` (MPa/s) and `u` (m/s), plus the posterior of `K`, `P0`, `Pf`.
 
 ### 4.6 Profiles that do not bound the rate
