@@ -2,91 +2,119 @@
 
 **Values come from unpublished data. Do not push this file to the public repo without Henry's OK.**
 
-Model: METHODS.md. Data: the 2023 profiles per case. sigma_i = case `one_sig` (SIMS 1 sigma), sigma_m = 0.
-Priors: the 2023 per-case priors (K ~ N(Kd_mean, Kd_sd), P0 ~ U(Pmin, Pmax), Pf ~ U(Pfmin, Pfmax) or the fixed Pf,
-log10 tau uniform over the tabulated range); D: log10 D uniform between the 2023 T-20 K and T+20 K laws
-(table 1) or a named law with T ~ U(1473 +/- 20) K (table 4); L fixed at the 2023 value; rho = 2800 +/- 100 kg/m3.
-Grid: 400 log10 tau x 25 P0 x 5 Pf cell centres (Pf: 1 when fixed), solver numx = 4 (numx_2023 - 1) + 1;
-40000 posterior draws (cells jittered uniformly), seed 0. The tau range is set per case by
-`bayes.auto_tau_range` (listed in table 3); `edge mass` is the posterior mass in the 3 outermost tau cells per end.
+Model: METHODS.md (corrected 2026-10-17). Data: the 2023 profiles per case. sigma_i = case `one_sig` (SIMS 1 sigma), sigma_m = 0.
+Priors on physical parameters: log10 v_P ~ U(-3, 4) with v_P in MPa/s (= 1e-4 to 1e3 MPa/s = 1e-3 to 1e4 bar/s; 1 MPa = 10 bar);
+log10 D uniform between the case's 2023 T-20 K and T+20 K laws (the `*_2023_bracket`), or a named law with T ~ U(1473 +/- 20) K (table 4);
+K ~ N(Kd_mean, Kd_sd); P0 ~ U(Pmin, Pmax); Pf ~ U(Pfmin, Pfmax) or the fixed Pf; L fixed at the 2023 value (table 5: L ~ U(L0 +/- 20 %), a posterior dimension read from the same table at xi_i(L); L with a point outside the crystal has zero likelihood); rho = 2800 +/- 100 kg/m3.
+Grid: posterior on 700 log v_P cells x 41 log D nodes x 5 P0 x (2 or 6) Pf nodes, K-marginal log-likelihood interpolated in log tau;
+G table: 400 log10 tau nodes from the solver floor (>= 10 time steps) to log10 tau = 2.5, 5 P0 x 2 Pf cell centres (Pf: 1 when fixed; 6 when the Pf prior spans > 10 bar, the three interior-cpx and grain-boundary cases),
+solver numx = 2 (numx_2023 - 1) + 1; 11 L nodes when L varies; 40000 posterior draws (cells jittered uniformly), seed 0.
+The priors reach log tau up to about 3.6; the table stops at log10 tau = 2.5 (cost grows with tau), so the likelihood is held at its edge value beyond.
+Flags (METHODS 4.6): `lower` / `upper` = the likelihood is within 2 log-units of its maximum at the low-tau / high-tau table edge that the
+prior can reach, so the data bound v_P from one side only; the table then shows the 95 % one-sided bound (`>` or `<`) instead of a median.
 
-## 1. v_P (bar/s), 2023 law and priors: posterior vs saved 2023 MC fits
+## 1. v_P (bar/s), 2023 bracket and priors on physical parameters: posterior vs saved 2023 MC fits
 
-| case | post median | 68 % | 95 % | 2023 median | 2023 IQR | post/2023 | u median (m/s) |
-|---|---|---|---|---|---|---|---|
-| ol_nostall_file_in_stalling_folder | 1.5 | 1.3-1.74 | 1.15-2 | 1.53 | 1.41-1.7 | 0.98 | 5.48 |
-| ol_with_stalling | 1.91 | 1.55-2.44 | 1.3-3.22 | 1.91 | 1.63-2.25 | 1.00 | 6.95 |
-| opx_wht1_exterior | 6.85 | 3.71-12.6 | 2.44-19.4 | 5.05 | 2.9-8.13 | 1.36 | 24.9 |
-| opx_wht1_exterior_higher_kd | 2.52 | 1.39-4.55 | 0.984-6.51 | 2.68 | 1.57-4 | 0.94 | 9.18 |
-| opx_wht1_interior | 26.1 | 13.5-50.6 | 8.25-91.9 | 10.4 | 6.69-15.3 | 2.52 | 95 |
-| opx_gcb_interior | 6.88 | 3.72-12.7 | 2.46-19.5 | 2.6 | 1.73-3.76 | 2.64 | 25 |
-| cpx_wht1_exterior | 6.72 | 2.66-17 | 1.72-26.3 | 6.49 | 3.76-14.1 | 1.04 | 24.5 |
-| cpx_wht1_interior1 | 297 | 145-619 | 76.4-1.24e+03 | 23.9 | 9.47-70.3 | 12.43 | 1.08e+03 |
-| cpx_wht1_interior2 | 11.4 | 6.08-21.4 | 3.86-34.3 | 12.2 | 7.95-19.9 | 0.94 | 41.5 |
-| opx_grain_boundary | 0.11 | 0.00967-1.24 | 0.00307-3.99 | 0.246 | 0.0453-1.2 | 0.45 | 0.401 |
+| case | flag | post median or 95 % bound | 68 % | 95 % | 2023 median | 2023 IQR | post/2023 | u median (m/s) |
+|---|---|---|---|---|---|---|---|---|
+| ol_nostall_file_in_stalling_folder | bounded | 1.51 | 1.31-1.75 | 1.15-2.01 | 1.53 | 1.41-1.7 | 0.99 | 5.52 |
+| ol_with_stalling | bounded | 1.93 | 1.56-2.45 | 1.31-3.21 | 1.91 | 1.63-2.25 | 1.01 | 7.02 |
+| opx_wht1_exterior | bounded | 6.9 | 3.72-12.6 | 2.46-19.6 | 5.05 | 2.9-8.13 | 1.37 | 25.1 |
+| opx_wht1_exterior_higher_kd | bounded | 2.54 | 1.4-4.54 | 0.991-6.54 | 2.68 | 1.57-4 | 0.95 | 9.26 |
+| opx_wht1_interior | bounded | 26.2 | 13.5-50.3 | 8.26-92.7 | 10.4 | 6.69-15.3 | 2.53 | 95.6 |
+| opx_gcb_interior | bounded | 6.93 | 3.74-12.6 | 2.46-19.7 | 2.6 | 1.73-3.76 | 2.66 | 25.2 |
+| cpx_wht1_exterior | bounded | 6.78 | 2.69-16.8 | 1.73-26.4 | 6.49 | 3.76-14.1 | 1.05 | 24.8 |
+| cpx_wht1_interior1 | bounded | 299 | 145-615 | 77.3-1.25e+03 | 23.9 | 9.47-70.3 | 12.50 | 1.09e+03 |
+| cpx_wht1_interior2 | bounded | 11.4 | 6.06-21.1 | 3.87-34.3 | 12.2 | 7.95-19.9 | 0.94 | 41.6 |
+| opx_grain_boundary | bounded | 0.199 | 0.0262-1.45 | 0.0117-4.41 | 0.246 | 0.0453-1.2 | 0.81 | 0.725 |
 
 ## 2. Other posteriors, median (68 %)
 
 | case | K | P0 (bar) | Pf (bar) | log10 tau |
 |---|---|---|---|---|
-| ol_nostall_file_in_stalling_folder | 9.04 (8.54-9.53) | 5.86e+03 (5.28e+03-6.43e+03) | 3.21 (1.39-4.47) | 1.26 (1.19-1.32) |
-| ol_with_stalling | 9.04 (8.55-9.53) | 230 (185-276) | 2.81 (1.04-4.34) | -0.257 (-0.431--0.124) |
-| opx_wht1_exterior | 96 (92.4-99.8) | 6.36e+03 (6.12e+03-6.59e+03) | 2.44 (0.764-4.18) | -0.333 (-0.458--0.219) |
-| opx_wht1_exterior_higher_kd | 120 (115-125) | 6.35e+03 (6.11e+03-6.59e+03) | 2.45 (0.776-4.18) | 0.101 (0.0105-0.181) |
-| opx_wht1_interior | 90.1 (87.5-92.9) | 6.35e+03 (6.11e+03-6.59e+03) | 4.97 (1.57-8.36) | -0.806 (-0.984--0.654) |
-| opx_gcb_interior | 96 (92.4-99.9) | 6.36e+03 (6.11e+03-6.59e+03) | 0 (0-0) | -0.335 (-0.46--0.221) |
-| cpx_wht1_exterior | 120 (115-125) | 6.35e+03 (6.11e+03-6.59e+03) | 2.53 (0.82-4.23) | 0.0613 (-0.0243-0.137) |
-| cpx_wht1_interior1 | 119 (116-121) | 6.35e+03 (6.11e+03-6.59e+03) | 215 (74.3-344) | -1.58 (-1.8--1.38) |
-| cpx_wht1_interior2 | 126 (122-130) | 6.35e+03 (6.11e+03-6.59e+03) | 356 (327-386) | -0.323 (-0.466--0.191) |
-| opx_grain_boundary | 89.6 (83.7-95.1) | 6.35e+03 (6.11e+03-6.59e+03) | 171 (136-191) | 0.169 (-0.0784-0.34) |
+| ol_nostall_file_in_stalling_folder | 9.03 (8.53-9.52) | 5.85e+03 (5.27e+03-6.42e+03) | 3.27 (1.47-4.49) | 1.25 (1.19-1.31) |
+| ol_with_stalling | 9.03 (8.55-9.52) | 230 (185-276) | 2.82 (1.04-4.34) | -0.262 (-0.431--0.127) |
+| opx_wht1_exterior | 96 (92.5-99.8) | 6.35e+03 (6.11e+03-6.59e+03) | 2.45 (0.767-4.17) | -0.335 (-0.459--0.218) |
+| opx_wht1_exterior_higher_kd | 120 (115-124) | 6.35e+03 (6.11e+03-6.59e+03) | 2.46 (0.783-4.17) | 0.1 (0.00917-0.182) |
+| opx_wht1_interior | 90.1 (87.5-92.8) | 6.35e+03 (6.11e+03-6.59e+03) | 5.02 (1.62-8.38) | -0.806 (-0.985--0.653) |
+| opx_gcb_interior | 96 (92.5-99.8) | 6.36e+03 (6.12e+03-6.59e+03) | 0 (0-0) | -0.336 (-0.461--0.22) |
+| cpx_wht1_exterior | 120 (115-125) | 6.35e+03 (6.11e+03-6.59e+03) | 2.52 (0.826-4.21) | 0.0596 (-0.0269-0.138) |
+| cpx_wht1_interior1 | 119 (116-121) | 6.35e+03 (6.11e+03-6.58e+03) | 216 (73.4-344) | -1.58 (-1.8--1.37) |
+| cpx_wht1_interior2 | 126 (122-130) | 6.35e+03 (6.11e+03-6.59e+03) | 361 (335-388) | -0.322 (-0.465--0.188) |
+| opx_grain_boundary | 89.2 (83.2-94.8) | 6.35e+03 (6.11e+03-6.59e+03) | 172 (138-191) | 0.148 (-0.112-0.334) |
 
 ## 3. Runtime (12-core Apple M-series, spawn pool) and grid
 
-Table build is one-off per case and path (12 workers, includes `auto_tau_range`), reusable for any data, sigma, priors or law.
-The 2023-style column is 100 x the mean time of `newcombe.fit_row` over 3 saved rows (numba solver, 2023 grid).
-Measured once (ol_with_stalling, cpx_wht1_exterior): a table with 5 P0 x 2 Pf cells instead of 25 x 5 builds in 1.2 s
-(vs 24 s and 22 s) and moves the log10 tau posterior quantiles by <= 0.004 (olivine) and <= 1e-4 (cpx); not the default.
+Table build is one-off per case and path (12 workers), reusable for any data, sigma, priors, law or temperature range.
+Posterior = grid posterior + 40k draws + summary for the 2023 bracket. The 2023-style column is 100 x the mean time of
+`newcombe.fit_row` over 3 saved rows (numba solver, 2023 grid, one core). The machine was shared, so times are upper bounds.
 
-| case | log10 tau range | table build (s) | posterior + 40k draws (s) | 2023-style MC, 100 fits, 1 core (s) | edge mass |
+| case | log10 tau table | table build (s) | posterior (s) | 2023-style MC, 100 fits, 1 core (s) |
+|---|---|---|---|---|
+| ol_nostall_file_in_stalling_folder | -3.12 to 2.50 | 10.8 | 0.09 | 26 |
+| ol_with_stalling | -3.12 to 2.50 | 13.3 | 0.10 | 3 |
+| opx_wht1_exterior | -3.47 to 2.50 | 31.9 | 0.10 | 30 |
+| opx_wht1_exterior_higher_kd | -3.47 to 2.50 | 31.9 | 0.11 | 5 |
+| opx_wht1_interior | -3.47 to 2.50 | 31.6 | 0.10 | 21 |
+| opx_gcb_interior | -3.47 to 2.50 | 17.0 | 0.05 | 13 |
+| cpx_wht1_exterior | -2.87 to 2.50 | 7.5 | 0.10 | 3 |
+| cpx_wht1_interior1 | -3.47 to 2.50 | 89.3 | 0.11 | 14 |
+| cpx_wht1_interior2 | -3.47 to 2.50 | 89.4 | 0.10 | 3 |
+| opx_grain_boundary | -3.47 to 2.50 | 89.3 | 0.12 | 6 |
+
+## 4. v_P (bar/s) under each prior on D (separate posterior per row; named laws T ~ U(1473 +/- 20) K)
+
+| case | D prior | flag | v_P median or bound | 68 % | ratio to bracket |
 |---|---|---|---|---|---|
-| ol_nostall_file_in_stalling_folder | 0.90 to 1.60 | 724.6 | 0.01 | 19 | 8.9e-09 |
-| ol_with_stalling | -1.10 to 0.20 | 23.8 | 0.01 | 2 | 4.2e-09 |
-| opx_wht1_exterior | -1.10 to 0.20 | 64.5 | 0.01 | 26 | 5.2e-08 |
-| opx_wht1_exterior_higher_kd | -0.50 to 0.50 | 147.3 | 0.01 | 4 | 5.5e-08 |
-| opx_wht1_interior | -4.00 to -0.10 | 15.9 | 0.01 | 19 | 2.2e-05 |
-| opx_gcb_interior | -1.10 to 0.20 | 16.1 | 0.01 | 9 | 4.7e-08 |
-| cpx_wht1_exterior | -0.50 to 0.40 | 22.2 | 0.01 | 2 | 1.4e-07 |
-| cpx_wht1_interior1 | -4.00 to -0.30 | 12.5 | 0.01 | 13 | 4.5e-05 |
-| cpx_wht1_interior2 | -1.10 to 0.40 | 86.1 | 0.01 | 3 | 3.3e-07 |
-| opx_grain_boundary | -1.50 to 1.00 | 205.7 | 0.01 | 6 | 3.4e-07 |
+| ol_nostall_file_in_stalling_folder | ol_2023_bracket | bounded | 1.51 | 1.31-1.75 | 1 |
+| ol_nostall_file_in_stalling_folder | ol_ferriss2018_a | bounded | 1.52 | 1.31-1.75 | 1 |
+| ol_with_stalling | ol_2023_bracket | bounded | 1.93 | 1.56-2.45 | 1 |
+| ol_with_stalling | ol_ferriss2018_a | bounded | 1.93 | 1.56-2.46 | 1 |
+| opx_wht1_exterior | opx_2023_bracket | bounded | 6.9 | 3.72-12.6 | 1 |
+| opx_wht1_exterior | opx_carpenter2003_001 | bounded | 13.5 | 10.1-18.2 | 1.95 |
+| opx_wht1_exterior | opx_demersroberge2021_100 | bounded | 38.7 | 29.2-51.9 | 5.61 |
+| opx_wht1_exterior | opx_demersroberge2021_010 | bounded | 25.9 | 19.5-34.8 | 3.75 |
+| opx_wht1_exterior | opx_demersroberge2021_001 | bounded | 47.2 | 35.7-63.1 | 6.85 |
+| opx_wht1_exterior_higher_kd | opx_2023_bracket | bounded | 2.54 | 1.4-4.54 | 1 |
+| opx_wht1_exterior_higher_kd | opx_carpenter2003_001 | bounded | 4.96 | 4-6.22 | 1.96 |
+| opx_wht1_exterior_higher_kd | opx_demersroberge2021_100 | bounded | 14.2 | 11.6-17.8 | 5.62 |
+| opx_wht1_exterior_higher_kd | opx_demersroberge2021_010 | bounded | 9.53 | 7.72-11.9 | 3.76 |
+| opx_wht1_exterior_higher_kd | opx_demersroberge2021_001 | bounded | 17.4 | 14.2-21.6 | 6.85 |
+| opx_wht1_interior | opx_2023_bracket | bounded | 26.2 | 13.5-50.3 | 1 |
+| opx_wht1_interior | opx_carpenter2003_001 | bounded | 50.6 | 34.9-76.5 | 1.93 |
+| opx_wht1_interior | opx_demersroberge2021_100 | bounded | 145 | 101-219 | 5.53 |
+| opx_wht1_interior | opx_demersroberge2021_010 | bounded | 97.1 | 67.2-147 | 3.7 |
+| opx_wht1_interior | opx_demersroberge2021_001 | bounded | 177 | 123-267 | 6.74 |
+| opx_gcb_interior | opx_2023_bracket | bounded | 6.93 | 3.74-12.6 | 1 |
+| opx_gcb_interior | opx_carpenter2003_001 | bounded | 13.5 | 10.2-18.2 | 1.95 |
+| opx_gcb_interior | opx_demersroberge2021_100 | bounded | 38.8 | 29.3-52.1 | 5.61 |
+| opx_gcb_interior | opx_demersroberge2021_010 | bounded | 26 | 19.6-34.9 | 3.75 |
+| opx_gcb_interior | opx_demersroberge2021_001 | bounded | 47.4 | 35.9-63.4 | 6.84 |
+| cpx_wht1_exterior | cpx_2023_bracket | bounded | 6.78 | 2.69-16.8 | 1 |
+| cpx_wht1_exterior | cpx_2023_exterior | bounded | 23.2 | 19.3-28.4 | 3.42 |
+| cpx_wht1_exterior | cpx_ferriss2016_tetal | bounded | 22.5 | 18.7-27.5 | 3.32 |
+| cpx_wht1_interior1 | opx_2023_bracket | bounded | 299 | 145-615 | 1 |
+| cpx_wht1_interior1 | cpx_2023_exterior | bounded | 1.02e+03 | 621-1.68e+03 | 3.42 |
+| cpx_wht1_interior1 | cpx_ferriss2016_tetal | bounded | 990 | 602-1.63e+03 | 3.32 |
+| cpx_wht1_interior2 | opx_2023_bracket | bounded | 11.4 | 6.06-21.1 | 1 |
+| cpx_wht1_interior2 | cpx_2023_exterior | bounded | 38.8 | 28.3-54 | 3.4 |
+| cpx_wht1_interior2 | cpx_ferriss2016_tetal | bounded | 37.7 | 27.5-52.3 | 3.3 |
+| opx_grain_boundary | gb_2023_bracket | bounded | 0.199 | 0.0262-1.45 | 1 |
+| opx_grain_boundary | gb_demouchy | bounded | 0.0138 | 0.0109-0.0213 | 0.0692 |
 
-## 4. v_P (bar/s) under each applicable law, median (68 %); same (tau, P0, Pf) draws (property 1)
+## 5. L-prior sensitivity: v_P (bar/s), 2023 bracket, L fixed vs L ~ U(L0 +/- 20 %)
 
-| case | law | v_P | v_P / 2023-law median |
-|---|---|---|---|
-| ol_nostall_file_in_stalling_folder | ol_ferriss2018_a | 1.51 (1.31-1.74) | 1 |
-| ol_with_stalling | ol_ferriss2018_a | 1.91 (1.55-2.45) | 1 |
-| opx_wht1_exterior | opx_carpenter2003_001 | 13.4 (10.1-18.2) | 1.96 |
-| opx_wht1_exterior | opx_demersroberge2021_100 | 38.6 (29.2-52) | 5.63 |
-| opx_wht1_exterior | opx_demersroberge2021_010 | 25.8 (19.5-34.8) | 3.77 |
-| opx_wht1_exterior | opx_demersroberge2021_001 | 47 (35.7-63.3) | 6.87 |
-| opx_wht1_exterior_higher_kd | opx_carpenter2003_001 | 4.96 (4-6.22) | 1.97 |
-| opx_wht1_exterior_higher_kd | opx_demersroberge2021_100 | 14.2 (11.6-17.8) | 5.64 |
-| opx_wht1_exterior_higher_kd | opx_demersroberge2021_010 | 9.51 (7.71-11.9) | 3.77 |
-| opx_wht1_exterior_higher_kd | opx_demersroberge2021_001 | 17.3 (14.2-21.6) | 6.87 |
-| opx_wht1_interior | opx_carpenter2003_001 | 50.4 (35-76.9) | 1.93 |
-| opx_wht1_interior | opx_demersroberge2021_100 | 145 (101-220) | 5.55 |
-| opx_wht1_interior | opx_demersroberge2021_010 | 96.9 (67.3-147) | 3.71 |
-| opx_wht1_interior | opx_demersroberge2021_001 | 177 (123-268) | 6.77 |
-| opx_gcb_interior | opx_carpenter2003_001 | 13.5 (10.2-18.3) | 1.96 |
-| opx_gcb_interior | opx_demersroberge2021_100 | 38.7 (29.4-52.2) | 5.63 |
-| opx_gcb_interior | opx_demersroberge2021_010 | 25.9 (19.6-35) | 3.77 |
-| opx_gcb_interior | opx_demersroberge2021_001 | 47.2 (35.9-63.5) | 6.87 |
-| cpx_wht1_exterior | cpx_2023_exterior | 23.1 (19.2-28.3) | 3.44 |
-| cpx_wht1_exterior | cpx_ferriss2016_tetal | 22.4 (18.6-27.4) | 3.34 |
-| cpx_wht1_interior1 | cpx_2023_exterior | 1.02e+03 (625-1.7e+03) | 3.43 |
-| cpx_wht1_interior1 | cpx_ferriss2016_tetal | 988 (605-1.65e+03) | 3.33 |
-| cpx_wht1_interior2 | cpx_2023_exterior | 38.9 (28.6-54.4) | 3.41 |
-| cpx_wht1_interior2 | cpx_ferriss2016_tetal | 37.7 (27.7-52.7) | 3.31 |
-| opx_grain_boundary | gb_demouchy | 0.00321 (0.00216-0.00567) | 0.0292 |
-| opx_grain_boundary | gb_demouchy_x1000 | 3.21 (2.16-5.67) | 29.2 |
+Valid L = fraction of the 11 L nodes that keep every data point inside the crystal.
+
+| case | L0 (um) | L fixed: v_P | L ~ U(+/-20 %): flag | v_P median or bound | 68 % | ratio to fixed | L posterior median (68 %) | valid L |
+|---|---|---|---|---|---|---|---|---|
+| ol_nostall_file_in_stalling_folder | 145 | 1.51 | bounded | 1.38 | 1.17-1.62 | 0.909 | 151 (145-157) | 1.00 |
+| ol_with_stalling | 145 | 1.93 | bounded | 1.77 | 1.39-2.37 | 0.917 | 148 (143-154) | 1.00 |
+| opx_wht1_exterior | 180 | 6.9 | bounded | 10.3 | 5.22-20 | 1.49 | 173 (170-177) | 0.73 |
+| opx_wht1_exterior_higher_kd | 180 | 2.54 | bounded | 2.62 | 1.43-4.81 | 1.03 | 179 (173-184) | 0.73 |
+| opx_wht1_interior | 160 | 26.2 | bounded | 26.1 | 13.4-50.4 | 0.994 | 159 (138-181) | 1.00 |
+| opx_gcb_interior | 180 | 6.93 | bounded | 10.2 | 5.2-20 | 1.47 | 174 (170-177) | 0.73 |
+| cpx_wht1_exterior | 115 | 6.78 | bounded | 6.61 | 2.63-16.6 | 0.975 | 124 (111-133) | 1.00 |
+| cpx_wht1_interior1 | 113 | 299 | bounded | 298 | 145-622 | 0.997 | 113 (97.5-128) | 1.00 |
+| cpx_wht1_interior2 | 134 | 11.4 | bounded | 11.4 | 6.05-21.2 | 0.999 | 142 (124-155) | 1.00 |
+| opx_grain_boundary | 5e+04 | 0.199 | bounded | 0.203 | 0.0262-1.55 | 1.02 | 4.67e+04 (4.17e+04-5.46e+04) | 1.00 |

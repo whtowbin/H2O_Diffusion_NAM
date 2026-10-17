@@ -8,6 +8,7 @@ values are stored in this repository.
 from __future__ import annotations
 
 import math
+from dataclasses import dataclass
 from pathlib import Path
 
 import pandas as pd
@@ -80,13 +81,49 @@ def sullivan_ranch_tetal(
     return float(sel[tet].iloc[0])
 
 
+@dataclass(frozen=True)
+class Bracket:
+    """The 2023 D prior: log10 D uniform between ``lo`` at T - 20 K and ``hi`` at T + 20 K (METHODS.md section 5)."""
+
+    lo: DiffLaw
+    hi: DiffLaw
+
+    def log10_bounds(self, T_K: float) -> tuple[float, float]:
+        return self.lo.log10_at(T_K - 20), self.hi.log10_at(T_K + 20)
+
+
+# from each master_script_test*.m (DHhi, DHlo lines)
+BRACKETS: dict[str, Bracket] = {
+    "ol_2023_bracket": Bracket(OL_FERRISS2018_A, OL_FERRISS2018_A),
+    "opx_2023_bracket": Bracket(DiffLaw(10**-6.6, 127000.0), OPX_CARPENTER2003_001),
+    "cpx_2023_bracket": Bracket(DiffLaw(10**-6.71, 130000.0), CPX_2023_EXTERIOR),
+    "gb_2023_bracket": Bracket(GB_DEMOUCHY, GB_DEMOUCHY_X1000),
+}
+
+
+def bracket_key(case_key: str) -> str:
+    """The `*_2023_bracket` key of a registry case (the interior cpx runs used the opx bracket)."""
+    if case_key.startswith("ol_"):
+        return "ol_2023_bracket"
+    if case_key == "opx_grain_boundary":
+        return "gb_2023_bracket"
+    if case_key.startswith(("opx_", "cpx_wht1_interior")):
+        return "opx_2023_bracket"
+    if case_key.startswith("cpx_"):
+        return "cpx_2023_bracket"
+    raise KeyError(case_key)
+
+
 def applicable_laws(case_key: str) -> dict[str, DiffLaw]:
-    """The named laws that apply to a registry case, by mineral (key prefix); cpx adds the Tet-Al law."""
-    pick = lambda *names: {n: LAWS[n] for n in names}
+    """The named single laws that apply to a registry case, by mineral; cpx adds the Tet-Al law."""
+
+    def pick(*names: str) -> dict[str, DiffLaw]:
+        return {n: LAWS[n] for n in names}
+
     if case_key.startswith("ol_"):
         return pick("ol_ferriss2018_a")
     if case_key == "opx_grain_boundary":
-        return pick("gb_demouchy", "gb_demouchy_x1000")
+        return pick("gb_demouchy")
     if case_key.startswith("opx_"):
         return pick(
             "opx_carpenter2003_001",
