@@ -25,7 +25,7 @@ Each answer goes into the scenario file (Task 1). Question numbers refer to `Ch3
 | G0.4 | olivine/melt K treatment (Q23) | constant N(9, 0.5) / wider prior 3–11 / path-dependent K(P) shape | constant, wider prior as sensitivity |
 | G0.5 | priors on P0, Pf, T, K per phase (Q26) | 2023 scripts / inferred from saved rows / new | 2023 scripts |
 | G0.6 | which profiles: Table 1 grains/profiles per phase, incl. what replaces the mislabeled "GCB interior OPX" (Q25) | list of `(sample, phase, grain, profile)` | all profiles fitted in 2023 (by grain) |
-| G0.7 | half-width L per grain and its prior | measured section half-width ± allowance (off-centre cut, 3-D) | 2023 values fixed + ±20 % sensitivity |
+| G0.7 | half-width L per grain and its prior | measured section half-width ± allowance (off-centre cut, 3-D) | 2023 values fixed + ±20 % sensitivity. Note: with L ± 20 %, the opx WHT1 exterior posterior moves L to ≈ 173 µm and v_P × 1.5 (only 73 % of L nodes keep all points inside the crystal at the 2023 L) — check that grain's half-width first |
 | G0.8 | pressure histories | linear only / linear + stall (depth, duration ranges) | linear + the 2023 stalling scenario |
 | G0.9 | initial condition | equilibrium with melt at P0 / free mantle value c0 (§7.3) | equilibrium; c0-free as sensitivity |
 | G0.10 | σ per point | Table 1 `1 sigma s.e.` / 2023 `one_sig` (Herasil SD) / both + σ_m | 2023 `one_sig`, Table 1 σ as sensitivity |
@@ -92,7 +92,9 @@ Task 6; **G4** permission from M. Newcombe and Henry before any of the port goes
   log10 v_P, v_P [MPa/s], u [m/s], K, P0, Pf, L, flags) and `summary.md`.
 - Interface: `python -m decompression run scenarios/paper_2026.toml --out <dir>`; seeded (`--seed`), so reruns are bit-identical.
 - Tests: `test_end_to_end_synthetic_recovery` (synthetic profiles through the whole CLI recover truth within 2σ); `test_reproduces_results_md`
-  (2023 settings give the numbers in `decompression/RESULTS.md` to rounding); `test_one_sided_flag_propagates`.
+  (2023 settings give the numbers in `decompression/RESULTS.md` to rounding); `test_one_sided_flag_propagates`;
+  `test_posterior_mass_above_tau_edge_below_1e-3` (every real run: posterior mass at log τ > 2.5 < 1e-3, else the run extends that
+  table to log τ 3.5 and records it — the edge clamp is only approximate, METHODS §4.3).
 - Verify: `uv run pytest tests/test_run.py -q`; run the CLI; DuckDB check that every profile × law × path row exists:
   `uv run --with duckdb python -c "import duckdb; print(duckdb.sql(\"select count(*), count(distinct profile) from '<dir>/posteriors.parquet'\"))"`.
 
