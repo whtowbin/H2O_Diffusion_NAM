@@ -50,3 +50,17 @@ it changes the Nelder–Mead path).
 - A baseline-against-itself control: two identical Python runs give bit-identical results; Octave forward twice identical.
 
 Report: a short `decompression/PORT_REPORT.md` with the numbers from T1–T4 (not a narrative).
+
+## Decisions (Henry, 2026-10-17)
+- Olivine: the 2023 MATLAB fits (`master_script_test.m`) already use D = 10^-5.4·exp(-130 kJ/RT) = `DH2O_Ol` (Ferriss 2018).
+  Swapping in the Python olivine law changes nothing; no olivine "step 2" refit needed for D.
+- cpx: use Ferriss 2016 with a per-grain tetrahedral-Al correction (fixes `DH2O_Mantle_Cpx`, whose body returns the olivine law).
+  Form: log10 D(T, TetAl) = logD0_ref − Ea/(ln10·R·T) + s·(log10 TetAl − log10 TetAl_ref), s = −1.04854545 (Ferriss 2016 fig. 12,
+  from the docstring). Default anchor = the 2023 exterior-cpx estimate "for mantle cpx with 0.07 Al(IV) based on Ferriss 2016":
+  logD0_ref = −6.71, Ea = 100 kJ/mol, TetAl_ref = 0.07. The docstring's Kunlun-diopside + 10^3.3 anchor needs Ferriss 2016 constants
+  that are not in the project: expose the anchor as parameters and note it as open. TetAl per grain from Ch3 T2_EMPA "Tet Al"
+  (Sullivan Ranch has one primary-cpx analysis per xenolith, so effectively per sample). Report the 2023 law (baseline) and the
+  Tet-Al law side by side per cpx case.
+- Interior cpx "Check Diffusivity" runs (Carpenter 2003 opx law): deliberate sensitivity test; port as-is, label as sensitivity.
+- opx: keep the 2023 Carpenter 2003 [001] law (no Python opx law yet).
+- MagmaSat: later (needs ThermoEngine container). Other VESIcal models now.
