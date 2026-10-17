@@ -183,3 +183,51 @@ Because of property 1, the decision table for the paper is cheap: for each case,
 4. **Agreement with 2023**: for each case, the posterior median `v_P` (2023 law, 2023 priors) vs the median of the saved 2023 MC fits;
    differences reported, with the expected size from the fminsearch tolerance and the D-prior rescaling. Not forced to agree.
 5. **Grid convergence** as in 4.3.
+
+## 7. Which inputs need a new G table
+
+The table `G(ξ; τ, P0, Pf)` is the solution of the dimensionless problem in section 2. Anything that only rescales that solution, or
+only changes where and how it is read, reuses the table; anything that changes the *shape* of the problem the PDE solves needs a new
+one. Building a table costs seconds to minutes (5 × 2 P0 × Pf grid; olivine ≈ 1 s on 12 cores); after that each combination of
+everything in 7.1 costs ≈ 0.01 s.
+
+### 7.1 Reuse the table (no new diffusion runs)
+
+| input | why | where it enters |
+|---|---|---|
+| `v_P`, `D`, `T`, diffusion law | only through `τ = D (P0 − Pf)/(v_P L²)` (property 1) | the `τ ↔ v_P` conversion and the `log D` prior |
+| half-width `L` | changes where the data are read, `ξ_i(L)`, and the `τ ↔ v_P` conversion | section 4.4 |
+| constant partition coefficient `K` (value or prior) | profile ∝ `K` (property 2) | closed-form marginal, section 4.2 |
+| degassing path multiplied by a constant | indistinguishable from a different `K` | — |
+| `P0`, `Pf` inside the tabulated range | already table axes | widen the range once if a new prior needs it |
+| SIMS σ, model-error σ_m, priors, new profiles, other grains | only the likelihood changes | — |
+| mineral phase | `G` is dimensionless and phase-free; phases differ only in `D` and `K` | profiles sharing a degassing path, pressure history and P0/Pf ranges share one table |
+
+### 7.2 Need a new table
+
+| input | why | tables |
+|---|---|---|
+| shape of the degassing path `H(P)` (solubility model, starting H2O/CO2, open/closed/half-open, degassing T) | the rim boundary follows a different curve, not a rescaled one | one per path |
+| shape of the pressure history (stalling, two-stage or accelerating ascent) | write `P(t) = P0 − (P0 − Pf) π(s)`; the linear ascent is `π(s) = s`. The rim value at reduced time `s` is `H(P0 − (P0 − Pf) π(s))`, a different function of `s` for each `π` | one per `π`; a stall depth/duration can be a table axis |
+| `K` that varies along the path, `K(P) = K0 f(P)` (e.g. olivine/melt partitioning falling with melt H2O; Peterson et al.) | the rim sees `K0 f(P) H(P)`: an effective path `f·H` | one per shape `f`; `K0` still integrates out in closed form |
+| initial profile not in equilibrium with the melt at `P0` (mantle value, pre-existing zoning) | breaks property 2 (initial value no longer ∝ `K`) | two tables combined by superposition (7.3) |
+| `D` changing during ascent (cooling, or `T` rising/falling with depth) | with reduced time `θ = ∫ D dt / L²` the PDE is again `∂C/∂θ = ∂²C/∂ξ²`, but the rim value as a function of `θ` depends on the shape `φ` of `D(t)/D_ref` | one per `φ` |
+| geometry (sphere, 3-D, anisotropic 3-D), concentration-dependent `D` | a different PDE (the latter non-linear: properties 1–2 no longer hold) | a new solver |
+| numerics (`numx`, `τ` range) | the table is a discretisation | rebuild; convergence test 4.3 |
+
+### 7.3 Superposition for a non-equilibrium initial profile
+Let the crystal start at a uniform value `c0` (e.g. a mantle concentration) that need not equal `K H(P0)`. The problem is linear, so
+its solution is the sum of two problems:
+
+    A(ξ, s): ∂A/∂s = τ ∂²A/∂ξ²,  A(ξ, 0) = 0,  ∂A/∂ξ(0, s) = 0,  A(1, s) = H(P0 − (P0 − Pf) π(s))   (rim-driven part)
+    B(ξ, s): ∂B/∂s = τ ∂²B/∂ξ²,  B(ξ, 0) = 1,  ∂B/∂ξ(0, s) = 0,  B(1, s) = 0                           (decay of the initial value)
+
+    C(ξ, 1) = K · A(ξ, 1; τ, P0, Pf) + c0 · B(ξ, 1; τ).
+
+Proof: both sides satisfy the same linear PDE, the same no-flux centre, the rim value `K H` (since `B = 0` there) and the initial
+value `c0` (since `A = 0` there); the solution is unique. ∎ `B` depends on `τ` only (no path), so it is a single 1-D table shared by
+everything. The equilibrium start is the special case `c0 = K H(P0)`, giving `G = A + H(P0) B` (a check: it must equal the existing
+table to rounding). With Gaussian priors on `K` and `c0`, the likelihood is linear-Gaussian in `(K, c0)` and both integrate out in
+closed form — section 4.2 with the scalar `a` replaced by the 2 × 2 matrix `M = Gᵀ S⁻¹ G + Σ_prior⁻¹`, `b = Gᵀ S⁻¹ h + Σ_prior⁻¹ μ`,
+and `log p(h | τ, P0, Pf) = −½ [hᵀ S⁻¹ h + μᵀ Σ_prior⁻¹ μ − bᵀ M⁻¹ b] − ½ log det(M Σ_prior) − Σ log(√(2π) s_i)`, where `G` has the
+two columns `A(ξ_i)` and `B(ξ_i)`.
