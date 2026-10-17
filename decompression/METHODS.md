@@ -108,23 +108,41 @@ The prior mass at `K < 0` is negligible for the priors used (μ_K/s_K ≥ 10); t
 **Checked:** `test_kd_marginal_matches_quadrature` — closed form vs numerical integration over K to 1e-8.
 
 ### 4.3 Posterior
-Because `G` does not depend on the data, it is tabulated once per case and degassing path on a grid of `log10 τ` (400 points over the
-full range implied by the priors in 4.1, not a range chosen from the likelihood), `P0` (default 5) and `Pf` (default 2), on a spatial
-grid 4× finer than the 2023 one (2023 grids carry 0.2–0.8 % spatial error vs a fine reference). From the table, the K-marginal
-log-likelihood `ℓ(log τ, P0, Pf)` (4.2) is computed for a data set in ~0.01 s. The posterior over the physical parameters is
+Because `G` does not depend on the data, it is tabulated once per case and degassing path, storing the whole profile on the `ξ`
+grid, over:
+- `log10 τ`: 400 points from the explicit solver's floor (≈ −3.1 to −3.5, where a step count < 10 would be needed) to **2.5**, not a
+  range chosen from the likelihood. The priors reach log τ ≈ 3.6; above the table `ℓ` is held at its edge value. This is an
+  **approximation**: for `τ ≫ 1` the crystal tracks its rim and `G → H(Pf)`, but slowly, because the last degassing near `Pf` is steep.
+  Measured (2026-10-17, max |G − H(Pf)| as a fraction of `H(P0) − H(Pf)`): at log τ 2.5, 0.7 % (olivine), 1.1 % (cpx interior 2),
+  3.4 % (opx exterior); G(2.5) vs G(3.0) differ by 0.4–2.2 %. It only matters for posterior mass in the slow-ascent tail
+  (log τ > 2.5); none of the ten cases' posteriors reach it, and the §4.6 flags report any that would. If one does, extend the table
+  (cost grows ∝ τ). (Corrected twice on 2026-10-17: the first version asked for "the full range implied by the priors", infeasible
+  with an explicit solver; a draft of this correction claimed the profile is converged at 2.5 "to rounding", which the measurement
+  above disproves.)
+- `P0`, `Pf`: table **nodes at the ends of each prior range**, default 5 P0 nodes and 2 Pf nodes, or 6 Pf nodes when the Pf prior
+  spans more than 10 bar (the interior cpx and grain-boundary cases, 200–400 bar). The posterior interpolates the profile linearly onto
+  15 P0 × 6 Pf integration cells. (Measured: treating 5 × 2 nodes as discrete prior points failed the K coverage test, 95 % interval
+  0.88, and 2 Pf nodes moved log v_P by up to 0.07 dex for a 400-bar Pf prior.)
+- space: a grid **2× finer** than the 2023 one (4× moved log v_P quantiles by ≤ 0.0017 dex in three cases and costs 3–5× more; the
+  2023 grids themselves carry 0.2–0.8 % spatial error vs a fine reference).
+
+From the table, the K-marginal log-likelihood `ℓ(log τ, P0, Pf)` (4.2) is computed for a data set in ~0.1 s. The posterior over the
+physical parameters is
 
     p(log v_P, log D, P0, Pf | h) ∝ exp ℓ(log D + log(P0 − Pf) − 2 log L − log v_P, P0, Pf) · p(log v_P) p(log D) p(P0) p(Pf),
 
-evaluated on a grid in `log v_P` × samples of `log D` × the `(P0, Pf)` nodes, with `ℓ` interpolated in `log τ`. This is exact up to
-grid resolution and has no MCMC noise. When `p(log v_P)` is flat wherever `ℓ` is non-negligible, it reduces to "fit `τ`, then
-multiply by `D(P0 − Pf)/L²`" (section 2, consequence 4).
-**Cost (measured 2026-10-17, 12 cores, machine loaded):** table build 12–725 s per case (cost grows with `τ`; the slowest case has
-`τ ≈ 18`); posterior 0.01 s. A 2023-style 100-fit MC is 2–26 s per case. The table is therefore *slower* for a single fit and pays
-off when reused — new priors, σ, diffusion laws, temperatures, or more profiles on the same geometry. The P0 × Pf grid was reduced from
-25 × 5 to 5 × 2 after measuring that this moves log τ quantiles by ≤ 0.004 (olivine) and 1e-4 (cpx) and cuts the build ~20×.
-*Corrected 2026-10-17: an earlier version called the table "cheap" without measuring it.*
-**Checked:** `test_grid_convergence` (posterior quantiles of log τ change < 0.01 when the τ grid is doubled and numx doubled);
-`test_g_table_matches_forward` (table entries equal direct forward runs).
+evaluated on a grid of `L` (11 nodes when `L` varies) × `log v_P` (350 cells, 0.02 dex) × `log D` (21 nodes from the D prior) ×
+the P0 × Pf cells, with `ℓ` interpolated in `log τ`. This is exact up to grid resolution and has no MCMC noise. Temperature enters
+only inside the `log D` prior, and each named diffusion law gets its own posterior on the same table. (Section 2, consequence 4 —
+fitting `τ` and multiplying afterwards — is the flat-prior special case; the code does not use it.)
+**Cost (measured 2026-10-17, 12 cores, machine shared, so upper bounds):** table build 8–90 s per case; posterior with 40k draws
+≈ 0.1 s. A 2023-style 100-fit MC is 3–30 s per case on one core. The table is therefore still slower for a *single* fit and pays off
+when reused — new priors, σ, diffusion laws, temperatures, L priors, or more profiles on the same geometry.
+*Corrected 2026-10-17: an earlier version called the table "cheap" without measuring it (first build 12–725 s).*
+**Checked:** `test_grid_convergence` (log10 v_P quantiles change < 0.01 dex when the τ and v grids are doubled and numx 2× → 4×;
+measured 0.0091, dominated by the 0.02-dex v cells — refine the v grid before tightening this); `test_g_table_matches_forward`
+(table entries equal direct forward runs); `test_coverage` — calibrated under the clamp above: about 25 % of prior-drawn truths
+have log τ > 2.5 and are generated at the table edge.
 
 ### 4.4 Decompression rate, ascent speed, and the half-width
 `v_P` comes directly from the posterior in 4.3. Ascent speed `u = v_P / (ρ g)` with `v_P` in Pa/s, `ρ` the density of the
@@ -132,7 +150,10 @@ overlying column (default 2800 ± 100 kg/m³, a documented input) and `g = 9.81 
 `L` is a posterior dimension, not a post-hoc factor (section 2, consequence 3), and it needs no extra diffusion runs: the table
 stores the whole dimensionless profile `G(ξ; τ, P0, Pf)`, so a value of `L` only changes where the data are read from it —
 `ξ_i = |d_i|/L` for centre-referenced distances, `ξ_i = 1 − d_rim,i/L` for rim-referenced ones — and the conversion
-`v_P = D (P0 − Pf)/(τ L²)`. Values of `L` that put a measured point outside the crystal (`ξ_i > 1`) have zero likelihood. Prior: the
+`v_P = D (P0 − Pf)/(τ L²)`. Values of `L` that put a measured point outside the crystal have zero likelihood: centre-referenced
+`|d_i| > L`; rim-referenced `d_rim,i > 2L`. A rim-referenced point with `L < d_rim,i ≤ 2L` lies past the centre in the other half of
+the slab and is read at `|ξ_i| = |1 − d_rim,i/L|` (valid for the symmetric slab; it assumes the traverse crossed the centre — reject
+such `L` instead if it did not). Prior: the
 2023 value fixed (default, reproduces 2023), or a measured half-width with an allowance for off-centre sectioning and 3-D shape.
 
 *Measured 2026-10-17 (single fminsearch fits, measured distances held fixed): the fitted rate responds to `L` × 0.8 / × 1.25 by
@@ -145,8 +166,10 @@ Report: median and 68/95 % intervals of `log10 v_P`, `v_P` (MPa/s) and `u` (m/s)
 ### 4.6 Profiles that do not bound the rate
 If `ℓ` stays within 2 log-units of its maximum all the way to the fast-ascent end (small `τ`: too little diffusion to resolve), the
 data give only a lower bound on `v_P` (and the median is set by the prior's upper limit). Likewise at the slow end. The code reports
-such cases as one-sided bounds (95 % limit) and flags them, instead of a median. In the first build this applied to `opx_wht1_interior`
-and `cpx_wht1_interior1`, the two cases that disagreed most with 2023.
+such cases as one-sided bounds (95 % limit) and flags them, instead of a median. With priors on the physical parameters (4.1), all ten
+2023 cases are bounded (none flagged). *Corrected 2026-10-17: an earlier version said `opx_wht1_interior` and `cpx_wht1_interior1`
+were unbounded; that came from the old flat-in-τ prior. Their 2.5× and 12.5× gaps to the 2023 medians come instead from saved runs
+that do not match the preserved scripts (Kd, P0; open question Q26) and from the 2023 fminsearch starting range.*
 
 ### 4.5 What is different from the 2023 Monte Carlo
 The 2023 procedure added noise to the data, drew `K` and `D` from priors, and ran fminsearch (absolute TolX 0.1–1 bar/s) 20–100
