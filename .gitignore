@@ -16,3 +16,4 @@ wheels/
 
 # VESIcal degassing-path cache
 decompression/.degassing_cache/
+decompression/.g_cache/
