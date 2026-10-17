@@ -13,3 +13,6 @@ wheels/
 .DS_Store
 .ipynb_checkpoints/
 ~$*
+
+# VESIcal degassing-path cache
+decompression/.degassing_cache/

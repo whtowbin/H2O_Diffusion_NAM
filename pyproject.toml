@@ -12,6 +12,7 @@ dependencies = [
     "pandas>=2.2",
     "pyjanitor>=0.31.0",
     "scipy>=1.16.2",
+    "vesical>=1.2.12",
 ]
 
 [dependency-groups]
