@@ -51,6 +51,19 @@ Task 6; **G4** permission from M. Newcombe and Henry before any of the port goes
   `test_flagged_points_excluded` (T1-104…T1-233 set); `test_missing_distance_raises` (T1-229, T1-240 have no distance).
 - Verify: `uv run pytest tests/test_scenario.py tests/test_profiles.py -q`.
 
+### Task 1b — Eruption priors from the 2026 MiMiC rerun (Henry, 2026-10-18)
+- Input: `Ch3_Xenolith_SIMS_Clean/data/mimic_2026/summary.csv` (PEC + bubble-corrected H2O, CO2, Pvbg/Pglass with MC 1σ per inclusion;
+  SR from `ExampleInput.csv` Sep 2025, Cima/VT from `…updated2025_1.csv` with **assumed** SR-relative uncertainties).
+- Creates `decompression/eruptions.py`, `tests/test_eruptions.py`.
+- Interface: `eruption_prior(name) -> EruptionPrior(H2O0, CO2_0, composition, Psat)` per eruption (Sullivan Ranch, Cima, Vulcan's Throne):
+  the starting melt for the degassing path = the highest-H2O inclusion (or the top-3 envelope, a scenario option), its CO2
+  (measured or bubble-corrected: scenario option) and its MC uncertainty; `Psat` from VESIcal for that melt sets the P0 prior.
+- Scenarios this feeds (Task 2/3): closed vs 50 % open degassing; solubility model (MagmaSat via container, Iacono-Marziano, Dixon);
+  measured vs bubble-corrected CO2; linear vs stalling ascent.
+- Tests: `test_prior_uses_max_h2o_inclusion` (picks the documented inclusion per eruption); `test_assumed_uncertainty_flag_propagates`
+  (Cima/VT priors carry the "assumed uncertainty" flag into results); `test_psat_matches_vesical_direct`.
+- Verify: `uv run pytest tests/test_eruptions.py -q`.
+
 ### Task 2 — Degassing paths, including effective paths
 - Changes `decompression/degassing.py`; creates `decompression/paths.py`, `tests/test_paths.py`.
 - Interfaces: `PATHS: dict[str, PathSpec]` registry (`"magmasat_2023_vb"` = the 2023 txt, `"iacono_closed_1200"`, `"dixon_closed_1200"`,
@@ -127,6 +140,6 @@ Task 6; **G4** permission from M. Newcombe and Henry before any of the port goes
 - Verification: every number in the text is read from `summary.md`/`sensitivity.csv` by a small script (no hand-typed values).
 
 ## Requirement → task check
-Pyroxene D from the olivine rate → Task 6b; full uncertainties → Tasks 4, 6 (posterior incl. L, T, K, c0, P0, Pf); every Table 1 profile → Task 1 (G0.6); alternative laws →
+Eruption-specific starting melts → Task 1b; pyroxene D from the olivine rate → Task 6b; full uncertainties → Tasks 4, 6 (posterior incl. L, T, K, c0, P0, Pf); every Table 1 profile → Task 1 (G0.6); alternative laws →
 Tasks 6–7; alternative degassing paths and K(P) → Task 2; stalling/multi-stage → Task 3; speed via reuse → Task 5; reproducibility →
 Tasks 1, 5, 6 (scenario file + seeded runs); privacy → results only in the private repo, data read at run time; paper outputs → Tasks 7–9.
