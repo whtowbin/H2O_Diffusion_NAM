@@ -19,7 +19,7 @@ Each answer goes into the scenario file (Task 1). Question numbers refer to `Ch3
 
 | # | decision | options | default if undecided |
 |---|---|---|---|
-| G0.1 | (reframed 2026-10-17) pyroxene D is **inferred** from the olivine rate (METHODS §8); which experimental opx values to compare against (Q20) | Carpenter 2003 / Demers-Roberge 2021 per axis | both, as comparison lines |
+| G0.1 | (reframed 2026-10-17) pyroxene D is **inferred** from the olivine rate (METHODS §8); which experimental opx values to compare against (Q20) | Carpenter 2003 / Demers-Roberge 2021 per axis | **decided 2026-10-17:** Carpenter [100]–[001] range as the main comparison (orientations unknown; thesis citation OK), Demers-Roberge per axis alongside |
 | G0.2 | (reframed) which cpx references to compare against (Q21) | Ferriss 2016 Kunlun / mantle-cpx estimate / 2023 anchor | all three as comparison |
 | G0.3 | degassing paths (Q22) | MagmaSat (needs ThermoEngine container) + Iacono-Marziano main; Dixon/Shishkina brackets | 2023 MagmaSat txt + Iacono-Marziano + Dixon |
 | G0.4 | olivine/melt K treatment (Q23) | constant N(9, 0.5) / wider prior 3–11 / path-dependent K(P) shape | constant, wider prior as sensitivity |
@@ -106,7 +106,8 @@ Task 6; **G4** permission from M. Newcombe and Henry before any of the port goes
   `test_dpx_matches_ratio_when_ol_sharp` (a delta-function olivine rate reproduces `log D_used + log v_ol − log v_px`);
   `test_dpx_requires_shared_path` (mismatched P0/Pf ranges raise).
 - Verify: `uv run pytest tests/test_dpx.py -q`; `dpx.md` lists log D_px (median, 68/95 %) per profile next to the chapter values
-  (cpx ≈ −11.4, opx ≥ −11.15) and the experimental laws.
+  (cpx ≈ −11.4, opx ≥ −11.15) and the experimental laws: opx against the Carpenter [100]–[001] band (`laws.OPX_CARPENTER2003_100`,
+  `laws.OPX_CARPENTER2003_001`, evaluated over the T prior) with Demers-Roberge per axis; cpx against the Ferriss values in G0.2.
 
 ### Task 7 — Sensitivity table for the paper
 - Creates `decompression/sensitivity.py` → `<dir>/sensitivity.md` and `.csv`: for each profile, the median log v_P under the base

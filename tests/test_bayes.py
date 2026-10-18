@@ -468,6 +468,7 @@ def test_named_law_values_at_1200c():
     want = {
         "ol_ferriss2018_a": -10.01,
         "opx_carpenter2003_001": -10.50,
+        "opx_carpenter2003_100": -11.10,
         "opx_demersroberge2021_100": -10.04,
         "opx_demersroberge2021_010": -10.21,
         "opx_demersroberge2021_001": -9.95,

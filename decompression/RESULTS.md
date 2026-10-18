@@ -51,16 +51,16 @@ Posterior = grid posterior + 40k draws + summary for the 2023 bracket. The 2023-
 
 | case | log10 tau table | table build (s) | posterior (s) | 2023-style MC, 100 fits, 1 core (s) |
 |---|---|---|---|---|
-| ol_nostall_file_in_stalling_folder | -3.12 to 2.50 | 10.8 | 0.09 | 26 |
-| ol_with_stalling | -3.12 to 2.50 | 13.3 | 0.10 | 3 |
-| opx_wht1_exterior | -3.47 to 2.50 | 31.9 | 0.10 | 30 |
-| opx_wht1_exterior_higher_kd | -3.47 to 2.50 | 31.9 | 0.11 | 5 |
-| opx_wht1_interior | -3.47 to 2.50 | 31.6 | 0.10 | 21 |
-| opx_gcb_interior | -3.47 to 2.50 | 17.0 | 0.05 | 13 |
-| cpx_wht1_exterior | -2.87 to 2.50 | 7.5 | 0.10 | 3 |
-| cpx_wht1_interior1 | -3.47 to 2.50 | 89.3 | 0.11 | 14 |
-| cpx_wht1_interior2 | -3.47 to 2.50 | 89.4 | 0.10 | 3 |
-| opx_grain_boundary | -3.47 to 2.50 | 89.3 | 0.12 | 6 |
+| ol_nostall_file_in_stalling_folder | -3.12 to 2.50 | 4.4 | 0.05 | 22 |
+| ol_with_stalling | -3.12 to 2.50 | 4.3 | 0.05 | 2 |
+| opx_wht1_exterior | -3.47 to 2.50 | 9.9 | 0.06 | 27 |
+| opx_wht1_exterior_higher_kd | -3.47 to 2.50 | 9.8 | 0.06 | 4 |
+| opx_wht1_interior | -3.47 to 2.50 | 10.1 | 0.06 | 20 |
+| opx_gcb_interior | -3.47 to 2.50 | 6.0 | 0.02 | 9 |
+| cpx_wht1_exterior | -2.87 to 2.50 | 2.7 | 0.05 | 3 |
+| cpx_wht1_interior1 | -3.47 to 2.50 | 30.2 | 0.08 | 14 |
+| cpx_wht1_interior2 | -3.47 to 2.50 | 32.4 | 0.07 | 3 |
+| opx_grain_boundary | -3.47 to 2.50 | 30.7 | 0.08 | 6 |
 
 ## 4. v_P (bar/s) under each prior on D (separate posterior per row; named laws T ~ U(1473 +/- 20) K)
 
@@ -72,21 +72,25 @@ Posterior = grid posterior + 40k draws + summary for the 2023 bracket. The 2023-
 | ol_with_stalling | ol_ferriss2018_a | bounded | 1.93 | 1.56-2.46 | 1 |
 | opx_wht1_exterior | opx_2023_bracket | bounded | 6.9 | 3.72-12.6 | 1 |
 | opx_wht1_exterior | opx_carpenter2003_001 | bounded | 13.5 | 10.1-18.2 | 1.95 |
+| opx_wht1_exterior | opx_carpenter2003_100 | bounded | 3.33 | 2.52-4.46 | 0.483 |
 | opx_wht1_exterior | opx_demersroberge2021_100 | bounded | 38.7 | 29.2-51.9 | 5.61 |
 | opx_wht1_exterior | opx_demersroberge2021_010 | bounded | 25.9 | 19.5-34.8 | 3.75 |
 | opx_wht1_exterior | opx_demersroberge2021_001 | bounded | 47.2 | 35.7-63.1 | 6.85 |
 | opx_wht1_exterior_higher_kd | opx_2023_bracket | bounded | 2.54 | 1.4-4.54 | 1 |
 | opx_wht1_exterior_higher_kd | opx_carpenter2003_001 | bounded | 4.96 | 4-6.22 | 1.96 |
+| opx_wht1_exterior_higher_kd | opx_carpenter2003_100 | bounded | 1.23 | 1-1.52 | 0.484 |
 | opx_wht1_exterior_higher_kd | opx_demersroberge2021_100 | bounded | 14.2 | 11.6-17.8 | 5.62 |
 | opx_wht1_exterior_higher_kd | opx_demersroberge2021_010 | bounded | 9.53 | 7.72-11.9 | 3.76 |
 | opx_wht1_exterior_higher_kd | opx_demersroberge2021_001 | bounded | 17.4 | 14.2-21.6 | 6.85 |
 | opx_wht1_interior | opx_2023_bracket | bounded | 26.2 | 13.5-50.3 | 1 |
 | opx_wht1_interior | opx_carpenter2003_001 | bounded | 50.6 | 34.9-76.5 | 1.93 |
+| opx_wht1_interior | opx_carpenter2003_100 | bounded | 12.5 | 8.69-18.9 | 0.478 |
 | opx_wht1_interior | opx_demersroberge2021_100 | bounded | 145 | 101-219 | 5.53 |
 | opx_wht1_interior | opx_demersroberge2021_010 | bounded | 97.1 | 67.2-147 | 3.7 |
 | opx_wht1_interior | opx_demersroberge2021_001 | bounded | 177 | 123-267 | 6.74 |
 | opx_gcb_interior | opx_2023_bracket | bounded | 6.93 | 3.74-12.6 | 1 |
 | opx_gcb_interior | opx_carpenter2003_001 | bounded | 13.5 | 10.2-18.2 | 1.95 |
+| opx_gcb_interior | opx_carpenter2003_100 | bounded | 3.35 | 2.53-4.48 | 0.483 |
 | opx_gcb_interior | opx_demersroberge2021_100 | bounded | 38.8 | 29.3-52.1 | 5.61 |
 | opx_gcb_interior | opx_demersroberge2021_010 | bounded | 26 | 19.6-34.9 | 3.75 |
 | opx_gcb_interior | opx_demersroberge2021_001 | bounded | 47.4 | 35.9-63.4 | 6.84 |

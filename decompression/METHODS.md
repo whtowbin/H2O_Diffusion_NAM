@@ -183,6 +183,7 @@ its grid. Agreement with the 2023 numbers is expected for the centre of the dist
 |---|---|---|---|
 | `ol_ferriss2018_a` | 10^-5.4 exp(−130 kJ/RT) | Ferriss et al. 2018, ‖a (= 2023 olivine runs, = `DH2O_Ol`) | −10.01 |
 | `opx_carpenter2003_001` | 10^-4.788 exp(−161 kJ/RT) | Carpenter 2003 thesis [001] (2023 opx runs) | −10.50 |
+| `opx_carpenter2003_100` | 10^-6.6 exp(−127 kJ/RT) | Carpenter 2003 thesis [100] (lower end of the 2023 opx bracket) | −11.10 |
 | `opx_demersroberge2021_{100,010,001}` | per Demers-Roberge et al. 2021 GCA | literature review 2026-10-17 (Q20) | −10.04 / −10.21 / −9.95 |
 | `cpx_2023_exterior` | 10^-6.71 exp(−100 kJ/RT) | 2023 estimate for 0.07 Al(IV) "based on Ferriss 2016" | −10.26 |
 | `cpx_ferriss2016_tetal` | anchor + s·(log10 TetAl − log10 TetAl_ref), s = −1.0485 | Ferriss et al. 2016 fig. 12 slope; anchor default = `cpx_2023_exterior` at TetAl_ref = 0.07 (Q21) | depends on TetAl |
@@ -261,6 +262,12 @@ The 2023 chapter fixes Stage II decompression from the olivine phenocryst (≈ 0
 H diffusivities that reproduce the pyroxene profiles at that rate; experimental laws (Demers-Roberge et al. 2021, Ferriss et al. 2016)
 are comparisons, not inputs, because pyroxene composition (Al, Cr) is expected to lower D. Property 1 makes this exact: a pyroxene
 profile constrains `τ_px = D_px (P0 − Pf)/(v_P L_px²)`, so a known `v_P` determines `D_px`.
+
+**Comparison set for opx (Henry, 2026-10-17).** Crystal orientations of the SIMS traverses are not known, so inferred opx D is compared
+with the Carpenter (2003, thesis; San Carlos mantle opx) **[100]–[001] range**: log D(1200 °C) −11.10 to −10.50 (−11.17 to −10.42 over
+1180–1220 °C). The chapter's "lowest opx, log D = −11.15" is the [100] end at ≈ 1180 °C. Demers-Roberge et al. 2021 (−9.95 to −10.21)
+is reported alongside; the 1–2 log-unit offset is attributed to composition (Al-, Cr-rich Sullivan Ranch pyroxenes) and to their
+extrapolation from ≤ 1020 °C. Citing the thesis is acceptable for the paper (Henry).
 
 **Joint posterior.** Let `q(v_P, P0, Pf)` be the olivine posterior (section 4) for the shared ascent path. For a pyroxene profile, put a
 flat prior on `log D_px` (wide range, e.g. −14 to −8) and use `q` as the prior on `(v_P, P0, Pf)`:

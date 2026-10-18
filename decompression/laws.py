@@ -25,7 +25,8 @@ FERRISS2016_SLOPE = -1.04854545
 TETAL_REF = 0.07  # Al(IV) per 6 O of the 2023 exterior-cpx estimate
 
 OL_FERRISS2018_A = DiffLaw(10**-5.4, 130000.0)  # = 2023 olivine runs = DH2O_Ol
-OPX_CARPENTER2003_001 = DiffLaw(10**-4.788, 161000.0)  # 2023 opx runs
+OPX_CARPENTER2003_001 = DiffLaw(10**-4.788, 161000.0)  # Carpenter 2003 thesis, San Carlos opx [001] (2023 DHhi)
+OPX_CARPENTER2003_100 = DiffLaw(10**-6.6, 127000.0)  # Carpenter 2003 thesis, [100] (2023 DHlo)
 # Demers-Roberge et al. 2021 (GCA, 10.1016/j.gca.2021.04.005), Table 3 and abstract:
 # isobaric Arrhenius log D = log D0 - Ea / (2.303 R T), ~DQFM-1, Tanzanian opx, m^2/s, Ea kJ/mol.
 # [100]: log D0 -5.11, Ea 139; [010]: -4.93, 149; [001]: -5.52, 125.
@@ -42,6 +43,7 @@ GB_DEMOUCHY_X1000 = DiffLaw(10**-6.2, 71000.0, 1000.0)  # the 2023 sensitivity r
 LAWS: dict[str, DiffLaw] = {
     "ol_ferriss2018_a": OL_FERRISS2018_A,
     "opx_carpenter2003_001": OPX_CARPENTER2003_001,
+    "opx_carpenter2003_100": OPX_CARPENTER2003_100,
     "opx_demersroberge2021_100": OPX_DEMERSROBERGE2021_100,
     "opx_demersroberge2021_010": OPX_DEMERSROBERGE2021_010,
     "opx_demersroberge2021_001": OPX_DEMERSROBERGE2021_001,
@@ -95,7 +97,7 @@ class Bracket:
 # from each master_script_test*.m (DHhi, DHlo lines)
 BRACKETS: dict[str, Bracket] = {
     "ol_2023_bracket": Bracket(OL_FERRISS2018_A, OL_FERRISS2018_A),
-    "opx_2023_bracket": Bracket(DiffLaw(10**-6.6, 127000.0), OPX_CARPENTER2003_001),
+    "opx_2023_bracket": Bracket(OPX_CARPENTER2003_100, OPX_CARPENTER2003_001),
     "cpx_2023_bracket": Bracket(DiffLaw(10**-6.71, 130000.0), CPX_2023_EXTERIOR),
     "gb_2023_bracket": Bracket(GB_DEMOUCHY, GB_DEMOUCHY_X1000),
 }
@@ -127,6 +129,7 @@ def applicable_laws(case_key: str) -> dict[str, DiffLaw]:
     if case_key.startswith("opx_"):
         return pick(
             "opx_carpenter2003_001",
+            "opx_carpenter2003_100",
             "opx_demersroberge2021_100",
             "opx_demersroberge2021_010",
             "opx_demersroberge2021_001",
