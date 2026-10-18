@@ -19,8 +19,8 @@ Each answer goes into the scenario file (Task 1). Question numbers refer to `Ch3
 
 | # | decision | options | default if undecided |
 |---|---|---|---|
-| G0.1 | opx diffusion law (Q20) | Carpenter 2003 bracket / Demers-Roberge 2021 per axis / both | both, reported side by side |
-| G0.2 | cpx law anchor (Q21) | 2023 anchor / docstring Kunlun+3.3 / Kunlun Table 4; ±0.7 log sensitivity | 2023 anchor + sensitivity |
+| G0.1 | (reframed 2026-10-17) pyroxene D is **inferred** from the olivine rate (METHODS §8); which experimental opx values to compare against (Q20) | Carpenter 2003 / Demers-Roberge 2021 per axis | both, as comparison lines |
+| G0.2 | (reframed) which cpx references to compare against (Q21) | Ferriss 2016 Kunlun / mantle-cpx estimate / 2023 anchor | all three as comparison |
 | G0.3 | degassing paths (Q22) | MagmaSat (needs ThermoEngine container) + Iacono-Marziano main; Dixon/Shishkina brackets | 2023 MagmaSat txt + Iacono-Marziano + Dixon |
 | G0.4 | olivine/melt K treatment (Q23) | constant N(9, 0.5) / wider prior 3–11 / path-dependent K(P) shape | constant, wider prior as sensitivity |
 | G0.5 | priors on P0, Pf, T, K per phase (Q26) | 2023 scripts / inferred from saved rows / new | 2023 scripts |
@@ -98,6 +98,16 @@ Task 6; **G4** permission from M. Newcombe and Henry before any of the port goes
 - Verify: `uv run pytest tests/test_run.py -q`; run the CLI; DuckDB check that every profile × law × path row exists:
   `uv run --with duckdb python -c "import duckdb; print(duckdb.sql(\"select count(*), count(distinct profile) from '<dir>/posteriors.parquet'\"))"`.
 
+### Task 6b — Pyroxene diffusivity from the olivine rate (METHODS §8)
+- Changes `decompression/bayes.py`; creates `tests/test_dpx.py`; output `<dir>/dpx.md` and rows in `posteriors.parquet`.
+- Interface: `infer_D_from_rate(px_case, px_table, ol_samples: Samples, logD_range=(-14, -8)) -> Posterior` (log D_px posterior and
+  T-corrected log D at 1200 °C), using the olivine posterior samples of `(v_P, P0, Pf)` as the prior.
+- Tests: `test_dpx_recovers_synthetic_D` (synthetic px profile made with known D and the olivine rate → posterior covers D);
+  `test_dpx_matches_ratio_when_ol_sharp` (a delta-function olivine rate reproduces `log D_used + log v_ol − log v_px`);
+  `test_dpx_requires_shared_path` (mismatched P0/Pf ranges raise).
+- Verify: `uv run pytest tests/test_dpx.py -q`; `dpx.md` lists log D_px (median, 68/95 %) per profile next to the chapter values
+  (cpx ≈ −11.4, opx ≥ −11.15) and the experimental laws.
+
 ### Task 7 — Sensitivity table for the paper
 - Creates `decompression/sensitivity.py` → `<dir>/sensitivity.md` and `.csv`: for each profile, the median log v_P under the base
   scenario and its shift for each one-at-a-time change (law, path, K treatment, L ±20 %, T ±20 K, σ mode, history, c0-free).
@@ -116,6 +126,6 @@ Task 6; **G4** permission from M. Newcombe and Henry before any of the port goes
 - Verification: every number in the text is read from `summary.md`/`sensitivity.csv` by a small script (no hand-typed values).
 
 ## Requirement → task check
-Full uncertainties → Tasks 4, 6 (posterior incl. L, T, K, c0, P0, Pf); every Table 1 profile → Task 1 (G0.6); alternative laws →
+Pyroxene D from the olivine rate → Task 6b; full uncertainties → Tasks 4, 6 (posterior incl. L, T, K, c0, P0, Pf); every Table 1 profile → Task 1 (G0.6); alternative laws →
 Tasks 6–7; alternative degassing paths and K(P) → Task 2; stalling/multi-stage → Task 3; speed via reuse → Task 5; reproducibility →
 Tasks 1, 5, 6 (scenario file + seeded runs); privacy → results only in the private repo, data read at run time; paper outputs → Tasks 7–9.

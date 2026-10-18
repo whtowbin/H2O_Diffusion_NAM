@@ -254,3 +254,25 @@ table to rounding). With Gaussian priors on `K` and `c0`, the likelihood is line
 closed form — section 4.2 with the scalar `a` replaced by the 2 × 2 matrix `M = Gᵀ S⁻¹ G + Σ_prior⁻¹`, `b = Gᵀ S⁻¹ h + Σ_prior⁻¹ μ`,
 and `log p(h | τ, P0, Pf) = −½ [hᵀ S⁻¹ h + μᵀ Σ_prior⁻¹ μ − bᵀ M⁻¹ b] − ½ log det(M Σ_prior) − Σ log(√(2π) s_i)`, where `G` has the
 two columns `A(ξ_i)` and `B(ξ_i)`.
+
+## 8. Inferring pyroxene diffusivity from the olivine rate (the paper's approach)
+
+The 2023 chapter fixes Stage II decompression from the olivine phenocryst (≈ 0.2 MPa/s, Figs 11–12) and solves for the opx and cpx
+H diffusivities that reproduce the pyroxene profiles at that rate; experimental laws (Demers-Roberge et al. 2021, Ferriss et al. 2016)
+are comparisons, not inputs, because pyroxene composition (Al, Cr) is expected to lower D. Property 1 makes this exact: a pyroxene
+profile constrains `τ_px = D_px (P0 − Pf)/(v_P L_px²)`, so a known `v_P` determines `D_px`.
+
+**Joint posterior.** Let `q(v_P, P0, Pf)` be the olivine posterior (section 4) for the shared ascent path. For a pyroxene profile, put a
+flat prior on `log D_px` (wide range, e.g. −14 to −8) and use `q` as the prior on `(v_P, P0, Pf)`:
+
+    p(log D_px | h_px, h_ol) ∝ ∫ exp ℓ_px(log D_px + log(P0 − Pf) − 2 log L_px − log v_P, P0, Pf) · q(v_P, P0, Pf | h_ol) dv_P dP0 dPf.
+
+With samples from `q` and the pyroxene table this costs ≈ 0.1 s per profile. Assumptions, to state in the paper: the olivine phenocryst
+and the xenolith pyroxenes experienced the same Stage II path (P0, Pf, history) at the same T; the pyroxene K prior and L as in
+section 4. If the paths differ (e.g. stalling), `q` must be the olivine posterior *for that path*.
+
+**Quick check (2026-10-17, ratio of posterior medians, 2023 brackets; to be replaced by the joint posterior).** With `v_P` ≈ 1.7 bar/s
+(olivine, 1.5–1.9): implied log D (1200 °C, m²/s) ≈ −11.4 (opx WHT1 exterior), −11.0 (opx exterior, higher K), −12.0 (opx WHT1
+interior), −11.4 (cpx WHT1 exterior). The deposit text gives cpx ≈ 25× below olivine (≈ −11.4) and the lowest opx −11.15, so the
+new fit reproduces the chapter. Relative to experiments: cpx sits at Ferriss et al.'s mantle-cpx estimate (~10⁻¹¹) and between the
+anchors in section 5; opx is 1–2 log units below Demers-Roberge et al. 2021 (−9.95 to −10.21) — "low end, attributed to composition".
