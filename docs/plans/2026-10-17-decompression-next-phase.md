@@ -51,7 +51,7 @@ Each answer goes into the scenario file (Task 1). Question numbers refer to `Ch3
 | G0.8 | pressure histories | linear only / linear + stall (depth, duration ranges) | linear + the 2023 stalling scenario |
 | G0.9 | initial condition | equilibrium with melt at P0 / free mantle value c0 (§7.3) | equilibrium; c0-free as sensitivity |
 | G0.10 | σ per point | Table 1 `1 sigma s.e.` / 2023 `one_sig` (Herasil SD) / both + σ_m | 2023 `one_sig`, Table 1 σ as sensitivity |
-| G0.11 (new 2026-10-20) | starting-melt major elements for the degassing path | AZ09-UK01 lava as in 2023 / the starting inclusion's own MiMiC-corrected composition / lava olivine-corrected to Fo90 (P&F S7; −4 % Psat) / Fe-loss-corrected inclusion (after the MiMiC review) | AZ09-UK01 lava, Fe3+/FeT 0.17 (reproduces 2023); inclusion composition as sensitivity |
+| G0.11 (new 2026-10-20) | starting-melt major elements for the degassing path | AZ09-UK01 lava as in 2023 / the starting inclusion's own MiMiC-corrected composition / lava olivine-corrected to Fo90 (P&F S7; −4 % Psat) / Fe-loss-corrected inclusion (after the MiMiC review) | AZ09-UK01 lava, Fe3+/FeT 0.17 (reproduces 2023; shown to be a liquid, no accumulation, Ch3 `docs/LAVA_VS_INCLUSIONS_LLD_2026-10-20.md`); Fe-loss + PEC-corrected inclusion mean as the alternative bracket (−9.8 % Psat); lava + 5 % olivine −1.5 %; scoria +11.8 % |
 | G0.12 (new) | volatile pairing at the start | max H2O and max CO2vbg from different inclusions (2023 recipe, 6821 bar with 2026 values) / one inclusion's own H2O–CO2 pair (Ol23: 5157 bar) / envelope over the top-3 (Q27) | 2023 recipe with 2026 values; single-inclusion pair as sensitivity |
 | G0.13 (new) | degassing-path temperature | 1200 °C (Feb 2023) / 1125 °C (July 2023 set) / MiMiC Ti of the starting inclusion (Ol23 1166 °C) | 1200 °C; 1166 °C as sensitivity (Psat moves ≤ 4 % between Ti and 1250 °C, Q30) |
 | G0.14 (new) | which saved exterior-opx run counts as "2023" for replay tests (Q25) | GCB-folder file (Pf = 0, used by the summary workbook) / Exterior-folder file (later) | GCB-folder file (matches the workbook) |
@@ -61,12 +61,12 @@ Gates that block specific tasks: ~~**G1** Docker/ThermoEngine for MagmaSat paths
 scenario-file edit); **G3** text-vs-data note items that change profiles (T1-170, T1-076 in `TEXT_DATA_INCONSISTENCIES.md`) before
 Task 6; ~~**G4** permission before the port goes public~~ resolved 2026-10-18 (Henry approved public pushes of this branch);
 **G5 (new)** the MiMiC method changes Henry accepts from Ch3 `docs/MIMIC_IMPROVEMENTS_2026-10-20.md` before Task 1b's priors
-are final. Measured on the key inclusions (2026-10-20): (a) Fe-loss correction with FEOTI = vent whole rock lowers H2O 3–7 % (Ol23
+are final. Measured on the key inclusions (2026-10-20): (a) Fe-loss correction: recommended FEOTI 11.6–11.9 wt% from the GC2 olivine control line (LLD study; the WGC array is too low, it would imply Fe gain for 4 of 11 inclusions) — H2O median −6 %, CO2vbg median +5.6 %; with FEOTI = vent whole rock H2O drops 3–7 % (Ol23
 3.549 → 3.337 wt%) and raises CO2vbg 5–9 % — the source of FEOTI is Henry's call; (b) two MiMiC code issues to fix in our patched
 copy first: resampled FEOTI never used (its uncertainty is not propagated) and the Fe-Mg exchange divisor 2.298 vs 1.7825 molar
 (≤ +2 % CO2vbg); (c) report MC median and 16–84 / 2.5–97.5 % intervals with no-bubble counts instead of draw 0 ± SD after the
-modified-z filter (Ol23 Pvbg 418, 95 % 307–643 MPa); (d) bubble CO2 density by ideal mixing with real-gas volumes raises CO2vbg up to
-+10 % (upper estimate); (e) Fe3+/FeT 0.167 ± 0.025 for Sullivan Ranch (P&F S3) instead of the hard-coded 0.2 (Ol23 H2O −1.3 %,
+modified-z filter (Ol23 Pvbg 418, 95 % 307–643 MPa); (d) bubble CO2: Duan & Zhang (2006) H2O-CO2 EOS at equilibrium vapor XCO2 (Ch3 `docs/BUBBLE_EOS_2026-10-20.md`)
+raises CO2vbg −1 to +8 % and the SR start to 7049 bar (+3.9 %); a pure-CO2 bubble is an upper bound (+55 % Ol23, start 8399 bar); (e) Fe3+/FeT 0.167 ± 0.025 for Sullivan Ranch (P&F S3) instead of the hard-coded 0.2 (Ol23 H2O −1.3 %,
 CO2vbg +3–4 %); (f) flag inclusions out of Fe-Mg equilibrium with the host (dFo > +2: AZ09GCB ol6, mo1016 06b_a) and treat a blank
 host Fo as an error; (g) no-bubble draws should get P and Ti from the corrected melt. Ford vs Toplis Kd (H2O −2.5 to −4.8 %,
 CO2vbg +5 to +14 %) stays a quoted systematic. Task 1b uses the median and percentile intervals from (c).
