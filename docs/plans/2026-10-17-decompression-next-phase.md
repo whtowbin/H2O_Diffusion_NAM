@@ -10,9 +10,31 @@ profile × diffusion law × scenario in seconds by reusing those tables, and wri
 **Out of scope.** 3-D or spherical geometry and concentration-dependent D (new solvers, METHODS §7.2 last rows); Cima / Vulcan's
 Throne profiles (no profiles measured); publishing the port (gate G4); changing Table 1 values.
 
-**Status (2026-10-17).** Port, cases, VESIcal paths and the first Bayesian fit are on branch `decompression-port` (local, not pushed).
+**Status (2026-10-17; pushed 2026-10-18).** Port, cases, VESIcal paths and the first Bayesian fit are on branch `decompression-port` (public on GitHub since 2026-10-18).
 A rework implementing the corrected METHODS §4 (priors on physical parameters, one-sided bounds, L as a posterior dimension) is in
 progress; interface names below are those in `decompression/bayes.py` at that rework and must be re-checked when it lands.
+
+## Update 2026-10-20 — what changed since the plan was written
+Sources: Ch3 repo `docs/STARTING_MELT_PF2016_2026-10-20.md`, `docs/MIMIC_PEC_AND_SOLUBILITY_2026-10-18.md`, `docs/OPEN_QUESTIONS.md`
+(Q18, Q22–Q31 context blocks), `docs/MIMIC_IMPROVEMENTS_2026-10-20.md` (pending).
+- **The 2023 starting melt is identified.** The 2023 MagmaSat path (`VesiCal1200_VaporBubble*.txt`, 1200 °C) started from the
+  "GCB Lava Whole Rock" row of the 2023 MiMiC input = Plank & Forsyth (2016) Table S5 **AZ09-UK01 (GC2 lava)**, Fe3+/FeT 0.17
+  (P&F S3 gives 0.167 for GC2), with H2O 3.36 wt% (2023 max, Ol23) and CO2 8529 ppm (2023 max CO2vbg, ol7). MagmaSat
+  reproduces its first rows (6757 bar vs 6756.1; melt CO2 within 2.3 ppm). The measured-CO2 path used 3296 ppm.
+- **The inclusions are not that lava plus or minus olivine.** 0 of 15 olivine-addition fits reach the lava within 2σ (Kd 0.27–0.33):
+  the inclusions are low in FeOT, MnO, MgO and high in CaO, Al2O3, Na2O, K2O, P2O5, and olivine-independent ratios differ
+  (TiO2/Al2O3, K2O/TiO2). Readings: uncorrected Fe loss (MiMiC FEOTI blank) and/or a different magma batch.
+- **Effect on the starting pressure is small for the 2023 recipe:** lava + 2026 maxima (Ol23 H2O 3.549, ol7 CO2vbg 8529) gives
+  6821 bar (+1.0 %); Fe3+/FeT 0.20–0.21 adds 1.4–1.8 %; pairing matters most: Ol23's own volatiles give 5157 bar (−24 %).
+- **Gates:** G1 resolved (MagmaSat runs in the ThermoEngine container under Colima, 20–120 s per point; 2023 path rows reproduced);
+  G4 resolved (Henry approved public pushes of this branch, 2026-10-18).
+- **Other inputs found since:** MiMiC's entrapment temperature is `Ti` (1131–1198 °C for the key inclusions), below the 1200 °C
+  path; the Feb 2023 code set used T = 1200 °C everywhere, the July set 1125 °C for olivine, opx exterior, all-rims and cpx exterior
+  only (Q18). The summary workbook's "WHT1 Exterior OPX" rows come from the Pf = 0 run in the "GCB Interior OPX" folder (median
+  0.26 MPa/s) rather than the Exterior folder's later run (0.51 MPa/s) (Q25). Saved Kd sit 2–6 prior SD above the script priors
+  (Q26). The Fig 11 caption gives olivine Kd 0.009, text and scripts 0.0009 (Q23). Solubility-model spread at the inclusions: total
+  CO2 −12 to +17 %, entrapment P e.g. Ol23 311–519 MPa (Q22, Q29). T1-076 has C and S 7× and 14× the rest of its profile
+  (Q13; likely contaminated); T1-170 analysis in Q12.
 
 ## Gate 0 — decisions needed before Task 1 (Henry)
 Each answer goes into the scenario file (Task 1). Question numbers refer to `Ch3_Xenolith_SIMS_Clean/docs/OPEN_QUESTIONS.md`.
@@ -29,10 +51,17 @@ Each answer goes into the scenario file (Task 1). Question numbers refer to `Ch3
 | G0.8 | pressure histories | linear only / linear + stall (depth, duration ranges) | linear + the 2023 stalling scenario |
 | G0.9 | initial condition | equilibrium with melt at P0 / free mantle value c0 (§7.3) | equilibrium; c0-free as sensitivity |
 | G0.10 | σ per point | Table 1 `1 sigma s.e.` / 2023 `one_sig` (Herasil SD) / both + σ_m | 2023 `one_sig`, Table 1 σ as sensitivity |
+| G0.11 (new 2026-10-20) | starting-melt major elements for the degassing path | AZ09-UK01 lava as in 2023 / the starting inclusion's own MiMiC-corrected composition / lava olivine-corrected to Fo90 (P&F S7; −4 % Psat) / Fe-loss-corrected inclusion (after the MiMiC review) | AZ09-UK01 lava, Fe3+/FeT 0.17 (reproduces 2023); inclusion composition as sensitivity |
+| G0.12 (new) | volatile pairing at the start | max H2O and max CO2vbg from different inclusions (2023 recipe, 6821 bar with 2026 values) / one inclusion's own H2O–CO2 pair (Ol23: 5157 bar) / envelope over the top-3 (Q27) | 2023 recipe with 2026 values; single-inclusion pair as sensitivity |
+| G0.13 (new) | degassing-path temperature | 1200 °C (Feb 2023) / 1125 °C (July 2023 set) / MiMiC Ti of the starting inclusion (Ol23 1166 °C) | 1200 °C; 1166 °C as sensitivity (Psat moves ≤ 4 % between Ti and 1250 °C, Q30) |
+| G0.14 (new) | which saved exterior-opx run counts as "2023" for replay tests (Q25) | GCB-folder file (Pf = 0, used by the summary workbook) / Exterior-folder file (later) | GCB-folder file (matches the workbook) |
 
-Gates that block specific tasks: **G1** Docker/ThermoEngine for MagmaSat paths (Task 2b); **G2** Henry's answers to G0.1–G0.10
-(Task 6 final run); **G3** text-vs-data note items that change profiles (T1-170, T1-076 in `TEXT_DATA_INCONSISTENCIES.md`) before
-Task 6; **G4** permission from M. Newcombe and Henry before any of the port goes public.
+Gates that block specific tasks: ~~**G1** Docker/ThermoEngine for MagmaSat paths (Task 2b)~~ resolved 2026-10-20 (Colima);
+**G2** Henry's answers to G0.1–G0.14 (Task 6 final run; every other task builds with the defaults above, so an answer is a
+scenario-file edit); **G3** text-vs-data note items that change profiles (T1-170, T1-076 in `TEXT_DATA_INCONSISTENCIES.md`) before
+Task 6; ~~**G4** permission before the port goes public~~ resolved 2026-10-18 (Henry approved public pushes of this branch);
+**G5 (new)** the MiMiC method changes Henry accepts from `docs/MIMIC_IMPROVEMENTS_2026-10-20.md` (Fe-loss correction, PEM handling)
+before Task 1b's priors are final.
 
 ## Tasks
 
@@ -60,8 +89,15 @@ Task 6; **G4** permission from M. Newcombe and Henry before any of the port goes
   (measured or bubble-corrected: scenario option) and its MC uncertainty; `Psat` from VESIcal for that melt sets the P0 prior.
 - Scenarios this feeds (Task 2/3): closed vs 50 % open degassing; solubility model (MagmaSat via container, Iacono-Marziano, Dixon);
   measured vs bubble-corrected CO2; linear vs stalling ascent.
+- Update 2026-10-20: `EruptionPrior` also carries `composition_source` (G0.11: `"lava_AZ09-UK01"`, `"inclusion"`, `"lava_Fo90"`,
+  `"inclusion_feloss"`), `fe3_fet`, `volatile_pairing` (G0.12) and `T_path` (G0.13). The Sullivan Ranch lava composition is read
+  at run time from Ch3 `data/recovered/M20_PlankForsyth2016/Plank&Forsyth-Supp-Tables.xlsx` (S5, AZ09-UK01) — never copied here.
+  Inclusions flagged by the MiMiC equilibrium check (AZ09GCB GC2_ol6, mo1016 06b_a; Q31) are excluded from the max-H2O pick unless
+  the scenario says otherwise; the Cima maximum then becomes 06a_a S-corrected (1.33 wt%).
 - Tests: `test_prior_uses_max_h2o_inclusion` (picks the documented inclusion per eruption); `test_assumed_uncertainty_flag_propagates`
-  (Cima/VT priors carry the "assumed uncertainty" flag into results); `test_psat_matches_vesical_direct`.
+  (Cima/VT priors carry the "assumed uncertainty" flag into results); `test_psat_matches_vesical_direct`;
+  `test_lava_recipe_reproduces_2023_start` (AZ09-UK01, Fe3+/FeT 0.17, H2O 3.35925, CO2 8476.074 ppm, 1200 °C → MagmaSat Psat
+  within 0.5 % of 6756.1 bar; marked `slow`, needs the container); `test_pem_flagged_inclusions_excluded`.
 - Verify: `uv run pytest tests/test_eruptions.py -q`.
 
 ### Task 2 — Degassing paths, including effective paths
@@ -70,7 +106,12 @@ Task 6; **G4** permission from M. Newcombe and Henry before any of the port goes
   …); `build_path(key) -> (P_bar, H_wt)`; `effective_path(P, H, f_of_P) -> (P, f·H)` for K(P) shapes (METHODS §7.2).
 - Tests: `test_magmasat_2023_txt_loads` (bit-equal to the txt); `test_dixon_regenerates_2023` (existing ≤ 3e-4 wt%);
   `test_effective_path_constant_f_equals_rescale` (f ≡ c gives the same posterior as K → cK).
-- Task 2b (gate G1): MagmaSat paths in the ThermoEngine container; `test_magmasat_regenerates_2023_txt` (tolerance from a rounding control).
+- Task 2b (G1 resolved): MagmaSat paths in the ThermoEngine container; `test_magmasat_regenerates_2023_txt` (tolerance from a rounding
+  control; the starting-melt study already reproduces rows 0–3 of both 1200 °C paths). Path keys follow the G0.11–G0.13 options,
+  e.g. `"magmasat_lava017_2023pair_1200"`, `"magmasat_lava017_2026pair_1200"`, `"magmasat_ol23_ownpair_1166"`; note that VESIcal
+  starts its grid above saturation, so the first written row (6756.1 bar) is the second grid point, not Psat.
+- Task 2c (new): solubility-model paths for the same starts (Iacono-Marziano, Dixon, Shishkina, MafiCH) so G0.3 can be decided on
+  their effect on v_P; reuse `Ch3/scripts/mimic/solswap_patch.py` composition handling only for the MiMiC side.
 - Verify: `uv run pytest tests/test_paths.py -q`.
 
 ### Task 3 — Pressure histories
@@ -140,6 +181,6 @@ Task 6; **G4** permission from M. Newcombe and Henry before any of the port goes
 - Verification: every number in the text is read from `summary.md`/`sensitivity.csv` by a small script (no hand-typed values).
 
 ## Requirement → task check
-Eruption-specific starting melts → Task 1b; pyroxene D from the olivine rate → Task 6b; full uncertainties → Tasks 4, 6 (posterior incl. L, T, K, c0, P0, Pf); every Table 1 profile → Task 1 (G0.6); alternative laws →
+Eruption-specific starting melts (incl. the identified 2023 lava start, G0.11–G0.13) → Task 1b, 2b; pyroxene D from the olivine rate → Task 6b; full uncertainties → Tasks 4, 6 (posterior incl. L, T, K, c0, P0, Pf); every Table 1 profile → Task 1 (G0.6); alternative laws →
 Tasks 6–7; alternative degassing paths and K(P) → Task 2; stalling/multi-stage → Task 3; speed via reuse → Task 5; reproducibility →
 Tasks 1, 5, 6 (scenario file + seeded runs); privacy → results only in the private repo, data read at run time; paper outputs → Tasks 7–9.
