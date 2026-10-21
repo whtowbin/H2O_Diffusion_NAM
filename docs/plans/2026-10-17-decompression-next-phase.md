@@ -100,9 +100,9 @@ CO2vbg +5 to +14 %) stays a quoted systematic. Task 1b uses the median and perce
 - Update 2026-10-20: each eruption has its own starting melt; a prior never borrows another volcano's composition (Sullivan Ranch: GC2
   lava AZ09-UK01 / scoria AZ09-GCB; Cima: vent 16 MO10-16; Vulcan's Throne: AZ09-UK02 tephra / AZ09-UK03 lava; all P&F 2016 S5),
   and `test_prior_composition_is_own_volcano` checks it.
-- Update 2026-10-20: `EruptionPrior` also carries `composition_source` (G0.11: `"lava_AZ09-UK01"`, `"inclusion"`, `"lava_Fo90"`,
-  (Sullivan Ranch values; Cima/VT use `"wr_MO10-16"` / `"wr_AZ09-UK02"` and their own inclusions),
-  `"inclusion_feloss"`), `fe3_fet`, `volatile_pairing` (G0.12) and `T_path` (G0.13). The Sullivan Ranch lava composition is read
+- Update 2026-10-20: `EruptionPrior` also carries `composition_source` (G0.11, Sullivan Ranch: `"lava_AZ09-UK01"`, `"inclusion"`,
+  `"lava_Fo90"`, `"inclusion_feloss"`; Cima: `"wr_MO10-16"`, `"inclusion"`; Vulcan's Throne: `"wr_AZ09-UK02"`, `"wr_AZ09-UK03"`,
+  `"inclusion"`), `fe3_fet` (per vent, P&F S3: GC2 0.167, Cima-16 0.171, VT 0.225), `volatile_pairing` (G0.12) and `T_path` (G0.13). The Sullivan Ranch lava composition is read
   at run time from Ch3 `data/recovered/M20_PlankForsyth2016/Plank&Forsyth-Supp-Tables.xlsx` (S5, AZ09-UK01) — never copied here.
   Inclusions flagged by the MiMiC equilibrium check (AZ09GCB GC2_ol6, mo1016 06b_a; Q31) are excluded from the max-H2O pick unless
   the scenario says otherwise; the Cima maximum then becomes 06a_a S-corrected (1.33 wt%).
