@@ -44,10 +44,11 @@ Source: Ch3 repo `docs/MODEL_CHOICES_2026-10-21.md` ("Decisions" and section 4).
   i.e. METHODS §7 K(P) = K0 f(P); and Towbin et al. 2023 constant N(9, 3)e-4. The old N(9, 0.5)e-4 prior is dropped.
 - **Solubility:** MagmaSat and Iacono-Marziano as separate full paths, never blended (a blend puts a kink in dH2O/dP that the
   boundary sees as a rate change); rates reported as pairs.
-- **Opx K:** Novella et al. 2014 Al2O3 fit (0.0135 SR, 0.0133 Cima). **Cpx K:** O'Leary et al. 2010 eq. 10 with IVAl = 2 − Si
-  and Cr subtracted (0.0099–0.0122 by xenolith), eq. 10 without Cr as the bracket.
-- **Initial step:** a fixed K that differs from core ÷ starting melt H2O creates a core–boundary step at t = 0 (GCB1 cpx −13 %,
-  WHT1 cpx +24 % under eq. 10 − Cr). Fit both with K anchored to core ÷ start and with a free initial value (Task 4).
+- **Opx K:** Novella et al. 2014 Al2O3 fit (0.0135 SR, 0.0133 Cima). **Cpx K:** O'Leary et al. 2010 eq. 10 with O'Leary's IVAl
+  definition (Al − Na)/2 (supplement Eq. A4), primary with the Cr-Tschermak Al removed, (Al − Na − Cr + 2Ti)/2: 0.0084–0.0101 by
+  xenolith (the two agree within 3 %). Open: if the xenolith cpx H2O is on the recalibrated SIMS scale, K is ×0.66–0.73.
+- **Initial step:** a fixed K that differs from core ÷ starting melt H2O creates a core–boundary step at t = 0 (GCB1 cpx boundary
+  26 % below the core, WHT1 6 % above, at 3.59 wt%). Fit both with K anchored to core ÷ start and with a free initial value (Task 4).
 
 ## Gate 0 — decisions needed before Task 1 (Henry)
 Each answer goes into the scenario file (Task 1). Question numbers refer to `Ch3_Xenolith_SIMS_Clean/docs/OPEN_QUESTIONS.md`.
