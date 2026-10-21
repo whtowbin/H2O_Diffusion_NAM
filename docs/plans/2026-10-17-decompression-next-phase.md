@@ -51,7 +51,7 @@ Each answer goes into the scenario file (Task 1). Question numbers refer to `Ch3
 | G0.8 | pressure histories | linear only / linear + stall (depth, duration ranges) | linear + the 2023 stalling scenario |
 | G0.9 | initial condition | equilibrium with melt at P0 / free mantle value c0 (§7.3) | equilibrium; c0-free as sensitivity |
 | G0.10 | σ per point | Table 1 `1 sigma s.e.` / 2023 `one_sig` (Herasil SD) / both + σ_m | 2023 `one_sig`, Table 1 σ as sensitivity |
-| G0.11 (new 2026-10-20) | starting-melt major elements for the degassing path | AZ09-UK01 lava as in 2023 / the starting inclusion's own MiMiC-corrected composition / lava olivine-corrected to Fo90 (P&F S7; −4 % Psat) / Fe-loss-corrected inclusion (after the MiMiC review) | AZ09-UK01 lava, Fe3+/FeT 0.17 (reproduces 2023; shown to be a liquid, no accumulation, Ch3 `docs/LAVA_VS_INCLUSIONS_LLD_2026-10-20.md`); Fe-loss + PEC-corrected inclusion mean as the alternative bracket (−9.8 % Psat); lava + 5 % olivine −1.5 %; scoria +11.8 % |
+| G0.11 (new 2026-10-20) | starting-melt major elements for the degassing path, **per volcano** (Sullivan Ranch = GC2/GCB vent; Cima and Vulcan's Throne are different volcanoes with their own starting melts and are never compared with the GC2 lava; Henry 2026-10-20). Sullivan Ranch options: | AZ09-UK01 lava as in 2023 / the starting inclusion's own MiMiC-corrected composition / lava olivine-corrected to Fo90 (P&F S7; −4 % Psat) / Fe-loss-corrected inclusion (after the MiMiC review) | AZ09-UK01 lava, Fe3+/FeT 0.17 (reproduces 2023; shown to be a liquid, no accumulation, Ch3 `docs/LAVA_VS_INCLUSIONS_LLD_2026-10-20.md`); Fe-loss + PEC-corrected inclusion mean as the alternative bracket (−9.8 % Psat); lava + 5 % olivine −1.5 %; scoria +11.8 % |
 | G0.12 (new) | volatile pairing at the start | max H2O and max CO2vbg from different inclusions (2023 recipe, 6821 bar with 2026 values) / one inclusion's own H2O–CO2 pair (Ol23: 5157 bar) / envelope over the top-3 (Q27) | 2023 recipe with 2026 values; single-inclusion pair as sensitivity |
 | G0.13 (new) | degassing-path temperature | 1200 °C (Feb 2023) / 1125 °C (July 2023 set) / MiMiC Ti of the starting inclusion (Ol23 1166 °C) | 1200 °C; 1166 °C as sensitivity (Psat moves ≤ 4 % between Ti and 1250 °C, Q30) |
 | G0.14 (new) | which saved exterior-opx run counts as "2023" for replay tests (Q25) | GCB-folder file (Pf = 0, used by the summary workbook) / Exterior-folder file (later) | GCB-folder file (matches the workbook) |
@@ -61,7 +61,7 @@ Gates that block specific tasks: ~~**G1** Docker/ThermoEngine for MagmaSat paths
 scenario-file edit); **G3** text-vs-data note items that change profiles (T1-170, T1-076 in `TEXT_DATA_INCONSISTENCIES.md`) before
 Task 6; ~~**G4** permission before the port goes public~~ resolved 2026-10-18 (Henry approved public pushes of this branch);
 **G5 (new)** the MiMiC method changes Henry accepts from Ch3 `docs/MIMIC_IMPROVEMENTS_2026-10-20.md` before Task 1b's priors
-are final. Measured on the key inclusions (2026-10-20): (a) Fe-loss correction: recommended FEOTI 11.6–11.9 wt% from the GC2 olivine control line (LLD study; the WGC array is too low, it would imply Fe gain for 4 of 11 inclusions) — H2O median −6 %, CO2vbg median +5.6 %; with FEOTI = vent whole rock H2O drops 3–7 % (Ol23
+are final. Measured on the key inclusions (2026-10-20): (a) Fe-loss correction, per volcano: Sullivan Ranch FEOTI 11.6–11.9 wt% from the GC2 olivine control line; Cima and Vulcan's Throne need their own (olivine control line through MO10-16 and AZ09-UK02/UK03 respectively; not yet done; their vent whole rocks give FEOTI 10.38 and 10.02) (LLD study; the WGC array is too low, it would imply Fe gain for 4 of 11 inclusions) — H2O median −6 %, CO2vbg median +5.6 %; with FEOTI = vent whole rock H2O drops 3–7 % (Ol23
 3.549 → 3.337 wt%) and raises CO2vbg 5–9 % — the source of FEOTI is Henry's call; (b) two MiMiC code issues to fix in our patched
 copy first: resampled FEOTI never used (its uncertainty is not propagated) and the Fe-Mg exchange divisor 2.298 vs 1.7825 molar
 (≤ +2 % CO2vbg); (c) report MC median and 16–84 / 2.5–97.5 % intervals with no-bubble counts instead of draw 0 ± SD after the
@@ -97,7 +97,11 @@ CO2vbg +5 to +14 %) stays a quoted systematic. Task 1b uses the median and perce
   (measured or bubble-corrected: scenario option) and its MC uncertainty; `Psat` from VESIcal for that melt sets the P0 prior.
 - Scenarios this feeds (Task 2/3): closed vs 50 % open degassing; solubility model (MagmaSat via container, Iacono-Marziano, Dixon);
   measured vs bubble-corrected CO2; linear vs stalling ascent.
+- Update 2026-10-20: each eruption has its own starting melt; a prior never borrows another volcano's composition (Sullivan Ranch: GC2
+  lava AZ09-UK01 / scoria AZ09-GCB; Cima: vent 16 MO10-16; Vulcan's Throne: AZ09-UK02 tephra / AZ09-UK03 lava; all P&F 2016 S5),
+  and `test_prior_composition_is_own_volcano` checks it.
 - Update 2026-10-20: `EruptionPrior` also carries `composition_source` (G0.11: `"lava_AZ09-UK01"`, `"inclusion"`, `"lava_Fo90"`,
+  (Sullivan Ranch values; Cima/VT use `"wr_MO10-16"` / `"wr_AZ09-UK02"` and their own inclusions),
   `"inclusion_feloss"`), `fe3_fet`, `volatile_pairing` (G0.12) and `T_path` (G0.13). The Sullivan Ranch lava composition is read
   at run time from Ch3 `data/recovered/M20_PlankForsyth2016/Plank&Forsyth-Supp-Tables.xlsx` (S5, AZ09-UK01) — never copied here.
   Inclusions flagged by the MiMiC equilibrium check (AZ09GCB GC2_ol6, mo1016 06b_a; Q31) are excluded from the max-H2O pick unless
@@ -105,7 +109,8 @@ CO2vbg +5 to +14 %) stays a quoted systematic. Task 1b uses the median and perce
 - Tests: `test_prior_uses_max_h2o_inclusion` (picks the documented inclusion per eruption); `test_assumed_uncertainty_flag_propagates`
   (Cima/VT priors carry the "assumed uncertainty" flag into results); `test_psat_matches_vesical_direct`;
   `test_lava_recipe_reproduces_2023_start` (AZ09-UK01, Fe3+/FeT 0.17, H2O 3.35925, CO2 8476.074 ppm, 1200 °C → MagmaSat Psat
-  within 0.5 % of 6756.1 bar; marked `slow`, needs the container); `test_pem_flagged_inclusions_excluded`.
+  within 0.5 % of 6756.1 bar; marked `slow`, needs the container); `test_pem_flagged_inclusions_excluded`; `test_prior_composition_is_own_volcano` (every eruption's prior and FEOTI come from that
+  volcano's own whole rock or inclusions, never from another volcano).
 - Verify: `uv run pytest tests/test_eruptions.py -q`.
 
 ### Task 2 — Degassing paths, including effective paths
