@@ -36,6 +36,19 @@ Sources: Ch3 repo `docs/STARTING_MELT_PF2016_2026-10-20.md`, `docs/MIMIC_PEC_AND
   CO2 −12 to +17 %, entrapment P e.g. Ol23 311–519 MPa (Q22, Q29). T1-076 has C and S 7× and 14× the rest of its profile
   (Q13; likely contaminated); T1-170 analysis in Q12.
 
+## Update 2026-10-21 — model inputs decided (Henry)
+Source: Ch3 repo `docs/MODEL_CHOICES_2026-10-21.md` ("Decisions" and section 4). These feed the scenario file (Task 1).
+- **Starting melts:** Sullivan Ranch AZ09-UK01 (Fe3+/FeT 0.167); Cima MO10-16 + 6.4 % olivine (0.171); Vulcan's Throne AZ94
+  (0.225), with AZ09-UK02 − 11.2 % olivine as the bracket.
+- **Olivine K: both.** Peterson et al. (Am Min 111:29) D_OH ~ N(11, 2)e-4 times the OH fraction (VolatileCalc-basalt speciation),
+  i.e. METHODS §7 K(P) = K0 f(P); and Towbin et al. 2023 constant N(9, 3)e-4. The old N(9, 0.5)e-4 prior is dropped.
+- **Solubility:** MagmaSat and Iacono-Marziano as separate full paths, never blended (a blend puts a kink in dH2O/dP that the
+  boundary sees as a rate change); rates reported as pairs.
+- **Opx K:** Novella et al. 2014 Al2O3 fit (0.0135 SR, 0.0133 Cima). **Cpx K:** O'Leary et al. 2010 eq. 10 with IVAl = 2 − Si
+  and Cr subtracted (0.0099–0.0122 by xenolith), eq. 10 without Cr as the bracket.
+- **Initial step:** a fixed K that differs from core ÷ starting melt H2O creates a core–boundary step at t = 0 (GCB1 cpx −13 %,
+  WHT1 cpx +24 % under eq. 10 − Cr). Fit both with K anchored to core ÷ start and with a free initial value (Task 4).
+
 ## Gate 0 — decisions needed before Task 1 (Henry)
 Each answer goes into the scenario file (Task 1). Question numbers refer to `Ch3_Xenolith_SIMS_Clean/docs/OPEN_QUESTIONS.md`.
 
