@@ -46,9 +46,9 @@ Source: Ch3 repo `docs/MODEL_CHOICES_2026-10-21.md` ("Decisions" and section 4).
   boundary sees as a rate change); rates reported as pairs.
 - **Opx K:** Novella et al. 2014 Al2O3 fit (0.0135 SR, 0.0133 Cima). **Cpx K:** eq. 10 form refit to the calibration experiments
   recalibrated to the Towbin et al. 2023 SIMS scale (the xenolith data's scale), O'Leary's IVAl definition with the Cr-Tschermak Al
-  removed: 0.0060–0.0070 by xenolith (±29 %); published-scale eq. 10 (0.0084–0.0103) as the upper case.
-- **Initial step:** with these K the cpx cores sit well above the boundary at the start (at 3.59 wt% melt H2O the boundary is 48 %
-  below the GCB1 core and 26 % below WHT1), so fixed-K runs lose rim water before degassing. Fit three ways: K anchored to
+  removed: 0.0063–0.0074 by xenolith (log-normal σ 0.23); published-scale eq. 10 (0.0084–0.0103) as the upper case.
+- **Initial step:** with these K the cpx cores sit well above the boundary at the start (at 3.59 wt% melt H2O the boundary is 46 %
+  below the GCB1 core and 23 % below WHT1), so fixed-K runs lose rim water before degassing. Fit three ways: K anchored to
   core ÷ start (2023 approach, assumes equilibrium), free initial value (Task 4), and literature K with measured cores.
 
 ## Gate 0 — decisions needed before Task 1 (Henry)
