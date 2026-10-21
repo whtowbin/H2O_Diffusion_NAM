@@ -50,6 +50,15 @@ Source: Ch3 repo `docs/MODEL_CHOICES_2026-10-21.md` ("Decisions" and section 4).
 - **Initial step:** with these K the cpx cores sit well above the boundary at the start (at 3.59 wt% melt H2O the boundary is 46 %
   below the GCB1 core and 23 % below WHT1), so fixed-K runs lose rim water before degassing. Fit three ways: K anchored to
   core ÷ start (2023 approach, assumes equilibrium), free initial value (Task 4), and literature K with measured cores.
+- **Pyroxene K for re-equilibrated crystals (Henry, 2026-10-21):** null hypothesis = the host magma reset the xenolith NAMs;
+  experimental growth K are a prior with extra uncertainty (H decorates inherited defects). Cpx/opx in the same xenolith
+  (GCB1 1.38, WHT1 0.96) matches experiment, so the pyroxenes share one reservoir. Fit each pyroxene profile with three K
+  strategies (Ch3 `scripts/model_choices/anchoring.py`, MODEL_CHOICES section 4, Fig. 9):
+  (1) core/start-anchored per SR batch (2.72 mixture, 3.39 and 3.59 wet);
+  (2) opx-anchored: Novella opx K (0.0143 GCB1, 0.0127 WHT1; also x0.737) and cpx K = opx K x cpx/opx core ratio;
+  (3) experiment-based (cpx recalibrated refit, log-normal sigma inflated to 0.5).
+  Opx rim timing is robust to the choice (WHT1 exterior rim reached at 27-96 MPa MagmaSat); cpx is not
+  (experiment K: loss from near saturation; anchored, wet batches: 90-370 MPa). Report fitted rates for all three.
 
 ## Gate 0 — decisions needed before Task 1 (Henry)
 Each answer goes into the scenario file (Task 1). Question numbers refer to `Ch3_Xenolith_SIMS_Clean/docs/OPEN_QUESTIONS.md`.
